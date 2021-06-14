@@ -3,36 +3,46 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <title>acodeliker</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="description" content="Description">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, minimum-scale=1.0">
+    <!-- vue Theme style -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+    <!-- 暗黑主题插件样式 -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
+        title="docsify-darklight-theme" type="text/css" />
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href="./CSS/host.css" rel="stylesheet" type="text/css" />
 </head>
 
+
 <body class="clone">
-    <div id="app"></div>
+    <div data-app id = "wrapper">
+        <a href="#/Chap1/zh-CN/test.md"> Get Started</a>
+    </div>
+    <div id="app">Please wait...</div>
     <script>
         window.$docsify = {
             // 加载侧边栏 _sidebar.md
             //loadSidebar: true,
-            /**
-            **  _sidebar.md 的加载逻辑是从每层目录下获取文件，
-            **  如果当前目录不存在该文件则回退到上一级目录。例如当前路径为 /zh-cn/more-pages 
-            **  则从 /zh-cn/_sidebar.md 获取文件，如果不存在则从 /_sidebar.md 获取。
-            **/
+            
             // 避免不必要的回退过程
             // alias: {
             //     '/.*/_sidebar.md': '/_sidebar.md'
             // },
 
-            // 开启目录功能
-            subMaxLevel: 2,
+            el: '#app',
+            el: '#wrapper',
+            // 开启自定义目录功能
+            // subMaxLevel: 2,
 
             // 文档标题，会显示在侧边栏顶部
             name: 'xiaobin的笔记',
             // 点击文档标题后跳转的链接地址
-            nameLink: '/',
+            // nameLink: '/',
 
             // 小屏设备下合并导航栏到侧边栏
             mergeNavbar: true,
@@ -48,53 +58,123 @@
                     }
                 }
             },
+
             // 入口文件，默认为README.md
-            //homepage: '',
+            // homepage: './host/guide.md',
 
             // 切换页面后是否自动跳转到页面顶部，默认false
             auto2top: 'true',
 
             // 封面页，默认加载 _coverpage.md
-            //coverpage: 'cover.md',
+            coverpage: true,
 
             // 在找不到指定页面时加载 _404.md
-            //notFoundPage: true
+            notFoundPage: true,
 
+            // 支持search选项
             search: {
-                maxAge: 86400000, // 过期时间，单位毫秒，默认一天
+                maxAge: 86400000, // 过期时间，单位毫秒，默认一天 
                 paths: 'auto',
-                placeholder: 'Type to search',
-                noData: 'No Results!',
+                placeholder: {
+                    //'/Chap1/zh-CN/': '搜索',
+                    '/Chap1/zh-CN/': 'Type to search',
+                },
+                noData: {
+                    '/Chap1/': 'No Results!',
+                },
                 depth: 6          // 搜索标题的最大程级, 1 - 6
             },
 
+            // 字数统计插件配置
+            count: {
+                countable: true,
+                fontsize: '0.9em',
+                color: 'rgb(90,90,90)',
+                language: 'chinese'
+            },
+            // 分页插件配置
+            pagination: {
+                previousText: '上一章节',
+                nextText: '下一章节',
+                crossChapter: true,
+            },
             // 点击复制
             copyCode: {
                 buttonText: 'Copy',
                 errorText: 'Error',
                 successText: 'Copied'
+            },
+            themeColor: "#42b983", // 暗黑模式主题色
+            // 切换夜间主题
+            darklightTheme: {
+                siteFont: "PT Sans",
+                defaultTheme: 'dark',
+                codeFontFamily: 'Roboto Mono, Monaco, courier, monospace',
+                bodyFontSize: '17px',
+                dark: {
+                    accent: '#42b983',
+                    toogleBackground: '#ffffff',
+                    background: '#091a28',
+                    textColor: '#b4b4b4',
+                    codeTextColor: '#ffffff',
+                    codeBackgroudColor: '#0e2233',
+                    borderColor: '#0d2538',
+                    blockQuoteColour: '#858585',
+                    highlightColor: '#d22778',
+                    sidebarSublink: '#b4b4b4',
+                    codeTypeColor: '#ffffff',
+                    coverBackground: 'linear-gradient(to left bottom, hsl(118, 100%, 85%) 0%,hsl(181, 100%, 85%) 100%)',
+                    toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)'
+                },
+                light: {
+                    accent: '#42b983',
+                    toogleBackground: '#091a28',
+                    background: '#ffffff',
+                    textColor: '#34495e',
+                    codeTextColor: '#525252',
+                    codeBackgroudColor: '#f8f8f8',
+                    borderColor: 'rgba(0, 0, 0, 0.07)',
+                    blockQuoteColor: '#858585',
+                    highlightColor: '#d22778',
+                    sidebarSublink: '#b4b4b4',
+                    codeTypeColor: '#091a28',
+                    coverBackground: 'linear-gradient(to left bottom, hsl(118, 100%, 85%) 0%,hsl(181, 100%, 85%) 100%)',
+                    toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)'
+                },
             }
         }
-
     </script>
     <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify.min.js"></script>
+    <!-- global search -->
     <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
+    
+    <!-- code snippets copyboard -->
     <!-- <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-copy-code.min.js"></script> -->
     <script src="//unpkg.com/docsify-copy-code"></script>
+    <!-- Image zoom -->
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+    <!-- Reading progress bar -->
     <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
+
+    <!-- code highlighting -->
     <!-- 
-    <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-c.js"></script>
-    <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-cpp.js"></script>
+        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-c.js"></script>
+        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-cpp.js"></script>
     <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-clike.js"></script>
-     -->
-
+    -->
     <script src="//unpkg.com/prismjs/components/prism-bash.js"></script>
-     
 
+    <!--  -->
     <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-katex.js"></script>
 
     <!-- Docsify v4 -->
     <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+
+    <!-- docsify-edit-on-github -->
+    <script src="//unpkg,com/docsify-edit-on-github/index.js"></script>
+
+    <!-- 暗黑主题切换插件 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
 </body>
 
 </html>
