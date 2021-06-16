@@ -8,41 +8,52 @@
     <meta name="description" content="Description">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, minimum-scale=1.0">
-    <!-- vue Theme style -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-    <!-- 暗黑主题插件样式 -->
+    <!-- vue Theme style (default) specifc version -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.10.2/lib/themes/vue.css">
+
+    <!-- Theme: Simple (latest v0.x.x) -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"> -->
+
+
+    <!-- Buble：-->
+    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css"> -->
+    <!-- ... etc-->
+
+    <!-- 暗黑主题插件样式(docsify-darklight-theme)：-->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
         title="docsify-darklight-theme" type="text/css" />
 
+    <!--  -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700' rel='stylesheet' type='text/css'>
     <link href="./CSS/host.css" rel="stylesheet" type="text/css" />
 </head>
 
 
-<body class="clone">
-    <div data-app id = "wrapper">
-        <a href="#/Chap1/zh-CN/test.md"> Get Started</a>
-    </div>
+<body>
+    <!-- add a navbar -->
+    <nav>
+        <a href="https://acodeliker.github.io">🐮🐮 Home</a>
+        <a href="https://zhuanlan.zhihu.com/p/33298916">❤️❤️ RPC-simpleCoreImpl</a>
+    </nav>
     <div id="app">Please wait...</div>
+
     <script>
         window.$docsify = {
             // 加载侧边栏 _sidebar.md
             //loadSidebar: true,
-            
+
             // 避免不必要的回退过程
             // alias: {
             //     '/.*/_sidebar.md': '/_sidebar.md'
             // },
 
-            el: '#app',
-            el: '#wrapper',
             // 开启自定义目录功能
             // subMaxLevel: 2,
 
             // 文档标题，会显示在侧边栏顶部
-            name: 'xiaobin的笔记',
+            name: 'xiaobin\'Wiki',
             // 点击文档标题后跳转的链接地址
-            // nameLink: '/',
+            nameLink: '/',
 
             // 小屏设备下合并导航栏到侧边栏
             mergeNavbar: true,
@@ -59,8 +70,8 @@
                 }
             },
 
-            // 入口文件，默认为README.md
-            // homepage: './host/guide.md',
+            // 首页入口文件加载路径，默认为README.md
+            //homepage: './host/guide.md',
 
             // 切换页面后是否自动跳转到页面顶部，默认false
             auto2top: 'true',
@@ -92,18 +103,22 @@
                 color: 'rgb(90,90,90)',
                 language: 'chinese'
             },
+
             // 分页插件配置
             pagination: {
                 previousText: '上一章节',
                 nextText: '下一章节',
                 crossChapter: true,
             },
+
             // 点击复制
             copyCode: {
                 buttonText: 'Copy',
                 errorText: 'Error',
                 successText: 'Copied'
             },
+
+            /* DarkMode */
             themeColor: "#42b983", // 暗黑模式主题色
             // 切换夜间主题
             darklightTheme: {
@@ -144,10 +159,14 @@
             }
         }
     </script>
-    <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify.min.js"></script>
+    <!-- load basic script -->
+    <script src="//cdn.jsdeliver.net/npm/docsify@4.10.2/lib/docsify.min.js"></script>
+
+
+    <!-- customization sripts -->
     <!-- global search -->
     <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
-    
+
     <!-- code snippets copyboard -->
     <!-- <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-copy-code.min.js"></script> -->
     <script src="//unpkg.com/docsify-copy-code"></script>
