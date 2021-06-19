@@ -3,18 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>acodeliker</title>
+    <title>&lt;acodeliker&gt;</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="description" content="Description">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, minimum-scale=1.0">
+
     <!-- vue Theme style (default) specifc version -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4.10.2/lib/themes/vue.css">
-
-    <!-- Theme: Simple (latest v0.x.x) -->
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css"> -->
-
-
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
     <!-- Buble：-->
     <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify/themes/buble.css"> -->
     <!-- ... etc-->
@@ -23,11 +19,9 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css"
         title="docsify-darklight-theme" type="text/css" />
 
-    <!--  -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700' rel='stylesheet' type='text/css'>
-    <link href="./CSS/host.css" rel="stylesheet" type="text/css" />
+    <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700' rel='stylesheet' type='text/css'> -->
+    <!-- <link rel="stylesheet" href="./_media/host.css" type="text/css"> -->
 </head>
-
 
 <body>
     <!-- add a navbar -->
@@ -35,60 +29,92 @@
         <a href="https://acodeliker.github.io">🐮🐮 Home</a>
         <a href="https://zhuanlan.zhihu.com/p/33298916">❤️❤️ RPC-simpleCoreImpl</a>
     </nav>
+
     <div id="app">Please wait...</div>
+    <!-- <div data-app id="main">Please wait...</div> -->
 
+    <!-- docsify-edit-on-github -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
     <script>
+        var repo = 'https://github.com/acodeliker/acodeliker.github.io';
+
+        /* Sidebar */
         window.$docsify = {
-            // 加载侧边栏 _sidebar.md
-            //loadSidebar: true,
+            // Recommended to set this to true - when transitioning between pages,
+            // it can look weird if you don't get to the top of the page.
+            auto2top: true,
 
-            // 避免不必要的回退过程
-            // alias: {
-            //     '/.*/_sidebar.md': '/_sidebar.md'
-            // },
+            // Maximum sidebar depth.
+            maxLevel: 6,
 
-            // 开启自定义目录功能
-            // subMaxLevel: 2,
+            // How many sub levels to show in the sidebar.
+            // This is useful for precision for a custom sidebar, but you can leave this out.
+            // Try a value of 2 to add subheadings. This is particularly useful if you have
+            // a lot of headings on a page.
+            subMaxLevel: 2,
 
-            // 文档标题，会显示在侧边栏顶部
-            name: 'xiaobin\'Wiki',
-            // 点击文档标题后跳转的链接地址
-            nameLink: '/',
-
+            // Add your logo to the top of our sidebar menu.
+            // logo: '/_media/icon.svg',
             // 小屏设备下合并导航栏到侧边栏
             mergeNavbar: true,
 
-            repo: 'https://github.com/acodeliker',//
+            // Name which appears at the top of the sidebar.
+            name: 'xiaobin\'s Wiki'
+        };
 
-            // custom
-            markdown: {
-                smartypants: true,
-                renderer: {
-                    link: function () {
-                        // ...
-                    }
-                }
+        /* Homepage
+            Configure the homepage settings. You might not need this, but in case you want to use a different homepage target. These recommendations come from the docs.
+        */
+        window.$docsify = {
+            // Change to /home.md rather than /README.md file.
+            //homepage: 'home.md',
+
+            // Specify the README.md at the root of your repo, rather than in the docs directory.
+            // homepage: 'https://raw.githubusercontent.com/docsifyjs/docsify/master/README.md'
+        };
+        
+        /* defalut */
+        window.$docsify = {
+            // load from _sidebar.md
+            loadSidebar: true,
+            // 避免不必要的回退过程
+            alias: {
+                '/.*/_sidebar.md': '/_sidebar.md'
             },
 
-            // 首页入口文件加载路径，默认为README.md
-            //homepage: './host/guide.md',
+            // load from _navbar.md
+            loadNavbar: false, // default?
 
-            // 切换页面后是否自动跳转到页面顶部，默认false
-            auto2top: 'true',
+            // 点击文档标题后跳转的链接地址
+            nameLink: '/',
+
+            repo: 'https://github.com/acodeliker',//
 
             // 封面页，默认加载 _coverpage.md
             coverpage: true,
 
-            // 在找不到指定页面时加载 _404.md
-            notFoundPage: true,
+            // custom
+            //el: '#main', // #app:default
+
+
+            plugins: [
+                EditOnGithubPlugin.create(
+                    repo + '/blob/main/docs/',
+                    null,
+                    '📝 Edit on GitHub',
+                )
+            ],
 
             // 支持search选项
             search: {
                 maxAge: 86400000, // 过期时间，单位毫秒，默认一天 
                 paths: 'auto',
                 placeholder: {
-                    //'/Chap1/zh-CN/': '搜索',
-                    '/Chap1/zh-CN/': 'Type to search',
+                    '/Chap1/zh-CN/': '搜索',
+                    '/Chap1/': 'Type to search',
+
+                    '/': 'Type to search',
+
                 },
                 noData: {
                     '/Chap1/': 'No Results!',
@@ -109,7 +135,7 @@
                 previousText: '上一章节',
                 nextText: '下一章节',
                 crossChapter: true,
-            },
+            }, 
 
             // 点击复制
             copyCode: {
@@ -117,9 +143,14 @@
                 errorText: 'Error',
                 successText: 'Copied'
             },
-
+   
             /* DarkMode */
-            themeColor: "#42b983", // 暗黑模式主题色
+            themeColor: "#4CAF50", // 暗黑模式主题色
+
+            themeable: {
+                readyTransition: true, // default
+                responsiveTables: true  // default
+            },
             // 切换夜间主题
             darklightTheme: {
                 siteFont: "PT Sans",
@@ -157,13 +188,18 @@
                     toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)'
                 },
             }
+
         }
     </script>
     <!-- load basic script -->
-    <script src="//cdn.jsdeliver.net/npm/docsify@4.10.2/lib/docsify.min.js"></script>
+    <!-- <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script> -->  
+    <!-- Docsify v4 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 
+    <!-- docsify-themeable (latest v0.x.x) -->
+    <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
 
-    <!-- customization sripts -->
+    <!-- customization scripts -->
     <!-- global search -->
     <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
 
@@ -179,21 +215,17 @@
     <!-- 
         <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-c.js"></script>
         <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-cpp.js"></script>
-    <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-clike.js"></script>
+        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-clike.js"></script>
     -->
-    <script src="//unpkg.com/prismjs/components/prism-bash.js"></script>
+    <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-bash.js"></script>
 
     <!--  -->
     <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-katex.js"></script>
 
-    <!-- Docsify v4 -->
-    <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-
-    <!-- docsify-edit-on-github -->
-    <script src="//unpkg,com/docsify-edit-on-github/index.js"></script>
 
     <!-- 暗黑主题切换插件 -->
     <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
+
 </body>
 
 </html>
