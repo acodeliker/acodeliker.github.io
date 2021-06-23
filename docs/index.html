@@ -21,24 +21,24 @@
 
     <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans|Montserrat:700' rel='stylesheet' type='text/css'> -->
     <!-- <link rel="stylesheet" href="./_media/host.css" type="text/css"> -->
+
+    <!-- <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"/> -->
 </head>
 
 <body>
     <!-- add a navbar -->
     <nav>
         <a href="https://acodeliker.github.io">🐮🐮 Home</a>
-        <a href="https://zhuanlan.zhihu.com/p/33298916">❤️❤️ RPC-simpleCoreImpl</a>
+        <a href="https://zhuanlan.zhihu.com/p/33298916">❤️❤️ RPC-simpleImpl</a>
     </nav>
 
     <div id="app">Please wait...</div>
     <!-- <div data-app id="main">Please wait...</div> -->
-
-    <!-- docsify-edit-on-github -->
     <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+
     <script>
         var repo = 'https://github.com/acodeliker/acodeliker.github.io';
-
-
+        
         /* Homepage
         Configure the homepage settings. You might not need this, but in case you want to use a different homepage target. These recommendations come from the docs.
         */
@@ -52,7 +52,7 @@
 
         /* defalut */
         window.$docsify = {
-            
+
             // load from _navbar.md
             loadNavbar: false, // default?
             /* Sidebar */
@@ -62,36 +62,36 @@
             alias: {
                 '/.*/_sidebar.md': '/_sidebar.md'
             },
-            
+
             // Recommended to set this to true - when transitioning between pages,
             // it can look weird if you don't get to the top of the page.
             auto2top: true,
-            
+
             // Maximum sidebar depth.
             maxLevel: 6,
-            
+
             // How many sub levels to show in the sidebar.
             // This is useful for precision for a custom sidebar, but you can leave this out.
             // Try a value of 2 to add subheadings. This is particularly useful if you have
             // a lot of headings on a page.
             subMaxLevel: 6,
-            
+
             // Add your logo to the top of our sidebar menu.
             // logo: '/_media/icon.svg',
             // 小屏设备下合并导航栏到侧边栏
             mergeNavbar: true,
-            
+
             // Name which appears at the top of the sidebar.
             name: 'xiaobin\'s Wiki',
-            
+
             // 点击文档标题后跳转的链接地址
             nameLink: '/',
-            
+
             repo: 'https://github.com/acodeliker',//
-            
+
             // 封面页，默认加载 _coverpage.md
             coverpage: true,
-            
+
             // custom
             //el: '#main', // #app:default
 
@@ -108,14 +108,11 @@
                 maxAge: 86400000, // 过期时间，单位毫秒，默认一天 
                 paths: 'auto',
                 placeholder: {
-                    '/Chap1/zh-CN/': '搜索',
-                    '/Chap1/': 'Type to search',
-
+                    '/zh-CN/': '搜索',
                     '/': 'Type to search',
-
                 },
                 noData: {
-                    '/Chap1/': 'No Results!',
+                    '/': 'No Results!',
                 },
                 depth: 6          // 搜索标题的最大程级, 1 - 6
             },
@@ -186,32 +183,25 @@
     </script>
     <!-- load basic script -->
     <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-    <!-- Docsify v4 -->
-    <!-- <script src="//cdn.jsdelivr.net/npm/docsify@4"></script> -->
-
-    <!-- docsify-themeable (latest v0.x.x) -->
-    <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
-
+    
     <!-- customization scripts -->
     <!-- global search -->
     <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
     <!-- code snippets copyboard -->
-    <!-- <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-copy-code.min.js"></script> -->
+    <!-- <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify-copy-code.min.js"></script> -->
     <script src="//unpkg.com/docsify-copy-code"></script>
     <!-- Image zoom -->
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
     <!-- Reading progress bar -->
     <script src="//unpkg.com/docsify-pagination/dist/docsify-pagination.min.js"></script>
     <!-- code highlighting -->
-    <!-- 
-        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-c.js"></script>
-        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-cpp.js"></script>
-        <script src="//cdn.jsdeliver.net/npm/docsify/lib/prism-clike.js"></script>
-    -->
-    <script src="//cdn.jsdelivr.net/npm/docsify/lib/prism-bash.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-php.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.js"></script>
 
-    <!--  -->
-    <script src="//cdn.jsdeliver.net/npm/docsify/lib/docsify-katex.js"></script>
+    <!-- LaTex mathematical formula -->
+    <!-- <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script> -->
 
     <!-- 暗黑主题切换插件 -->
     <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
