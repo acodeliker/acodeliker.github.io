@@ -3,27 +3,21 @@
 - ### C++ 11 main features
 
     ### 1.Attributes
-    
-    one of the key features of modern C++ which allows the programmer to specify additional information to the compiler 
-	to enforce constraints(conditions), optimise certain pieces of code or do some specific code generation. 
-	
-    In simple terms, an attribute acts as an annotation or a note 
-	to the compiler which provides additional information about the code for optimization purposes
-    and enforcing certain conditions on it. 
+    $\;$$\,$$\;$ one of the key features of modern C++ which allows the programmer to specify additional information to the compiler to enforce constraints(conditions), optimise certain pieces of code or do some specific code generation. 
 
-    Introduced in C++11, they have remained one of the best features of C++
-	and are constantly being evolved with each new version of C++.
-	
+    &nbsp;&nbsp;&nbsp;&nbsp;In simple terms, an attribute acts as an annotation or a note to the compiler which provides additional information about the code for optimization purposes and enforcing certain conditions on it. 
+
+    &nbsp;&nbsp;&nbsp;&nbsp;Introduced in C++11, they have remained one of the best features of C++and are constantly being evolved with each new version of C++.
     > #### Syntax:
     ```txt
-        // C++11
-        [[attribute-list]]
-        
-        // C++17
-        [[using attribute-namespace:attribute-list]]
-        
-        // C++20
-        [[contract-attribute-token contract-level identifier : expression]]
+    // C++11
+    [[attribute-list]]
+    
+    // C++17
+    [[using attribute-namespace:attribute-list]]
+    
+    // C++20
+    [[contract-attribute-token contract-level identifier : expression]]
     ```
     _Except for some specific ones, most of the attributes can be applied with variables, functions, classes, structures etc._
     > #### Purpose of attributes:    
@@ -31,7 +25,8 @@
     a. To enforce constraints on the code:
     
         Here constraint refers to a condition, that the arguments of a particular function must meet for its execution (precondition).
-        In previous versions of C++, the code for specifying constraints was written in this manner
+
+    In previous versions of C++, the code for specifying constraints was written in this manner
 
     ```cpp
     int f(int i)
@@ -52,7 +47,6 @@
         // Code
     }
     ```
-
     b. To give additional information to the compiler for optimisation purposes:
             
         Compilers are very good at optimization 
@@ -62,8 +56,7 @@
         To reduce this problem to an extent C++ standard has introduced some new attributes 
         that allow specifying a little more to the compiler rather than the code statement itself. 
             
-        Once such example is that of likely.
-
+    Once such example is that of likely.
     ```cpp
     int f(int i)
     {
@@ -109,11 +102,15 @@
 
     a. noreturn: indicates that the function does not return a value
         
-        Usage:
+    Usage:
+    
+        [[noreturn]] void f();
         
-            [[noreturn]] void f();
-            While looking at the code above, the question arises what is the point of having noreturn when the return type is actually void? If a function has a void type, then it actually returns to the caller without a value but if the case is such that the function never returns back to the caller (for example an infinite loop) then adding a noreturn attribute gives hints to the compiler to optimise the code or generate better warnings.
-        
+        While looking at the code above, the question arises what is the point of having noreturn when the return type is actually void? 
+        If a function has a void type, then it actually returns to the caller without a value 
+        but if the case is such that the function never returns back to the caller (for example an infinite loop) 
+        then adding a noreturn attribute gives hints to the compiler to optimise the code or generate better warnings.
+    
     Example:
 
     ```cpp    
@@ -141,15 +138,31 @@
     ```
 
     ### 2.Uniform Initialization
+    $\;$ $\;$ A feature in C++ 11 that allows the usage of a consistent syntax to initialize variables and objects ranging from primitive type to aggregates. 
+    $\;$ $\;$ In other words, it introduces brace-initialization that uses braces ({}) to enclose initializer values. 
+    
+    The syntax is as follows:
+
+        type var_name{arg1, arg2, ....arg n}
 
     ```cpp
     int main() {
-        // 1
+        // 1 Since C++11, List-initialization, defined in the <initializer_list> header file, using a curly brace to solve everything.
         int value[]{1, 2, 3}; // ==  int value[] = {1,2,3}
         // std::initializer_list<T>A container array is associated with a(container)array<T,n> 
         // in which the elements are broken down by the compiler and passed to the function object one by one
-        // 2
+        
+        // 2 initializer_list<T> simple test
         vector<int> v{2, 3, 5};
+
+        // 3 initializer_list<T> simple test
+        /*************************************************************************************
+        ** Compiler will form a initializer_list<string> for a curly brace below， 
+        ** When the constructor of vector<string> is called by array<string,6>, 
+        ** the compiler will find one that accepts the Overloaded constructor of initializer_list<string>
+        ** All containers have such a constructor. In this constructor will use initializer_list<string> to initialize.
+        **************************************************************************************/
+        vector<string> city{"Berlin", "New York", "London", "Cairo","Tokyo", "Cologne"};
 
         /* CODING */
         
@@ -157,3 +170,20 @@
     }
 
     ```
+    ### 3.Structured Binding
+    Binds the specified names to subobjects or elements of the initializer.
+		Like a reference, a structured binding is an alias to an existing object. Unlike a reference, a structured binding does not have to be of a reference type.
+		
+	> syntax：
+		
+        attr(optional) cv-auto ref-operator(optional) [ identifier-list ] = expression ;    (1) 	
+        attr(optional) cv-auto ref-operator(optional) [ identifier-list ] { expression } ;  (2) 	
+        attr(optional) cv-auto ref-operator(optional) [ identifier-list ] ( expression ) ;  (3) 
+		
+        attr	-	sequence of any number of attributes
+		cv-auto	-	possibly cv-qualified type specifier auto, may also include storage-class-specifier static or thread_local; including volatile in cv-qualifiers is deprecated (since C++20)
+		ref-qualifier	-	either & or &&
+		identifier-list	-	list of comma-separated identifiers introduced by this declaration
+		expression	-	an expression that does not have the comma operator at the top level (grammatically, an assignment-expression), and has either array or non-union class type. If expression refers to any of the names from identifier-list, the declaration is ill-formed.
+
+
