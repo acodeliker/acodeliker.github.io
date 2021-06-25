@@ -52,7 +52,6 @@
 
         /* defalut */
         window.$docsify = {
-
             // load from _navbar.md
             loadNavbar: false, // default?
             /* Sidebar */
@@ -62,20 +61,16 @@
             alias: {
                 '/.*/_sidebar.md': '/_sidebar.md'
             },
-
             // Recommended to set this to true - when transitioning between pages,
             // it can look weird if you don't get to the top of the page.
             auto2top: true,
-
             // Maximum sidebar depth.
             maxLevel: 6,
-
             // How many sub levels to show in the sidebar.
             // This is useful for precision for a custom sidebar, but you can leave this out.
             // Try a value of 2 to add subheadings. This is particularly useful if you have
             // a lot of headings on a page.
-            subMaxLevel: 6,
-
+            subMaxLevel: 3,
             // Add your logo to the top of our sidebar menu.
             // logo: '/_media/icon.svg',
             // 小屏设备下合并导航栏到侧边栏
@@ -188,8 +183,8 @@
     <!-- global search -->
     <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
     <!-- code snippets copyboard -->
-    <!-- <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify-copy-code.min.js"></script> -->
-    <script src="//unpkg.com/docsify-copy-code"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+    
     <!-- Image zoom -->
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
     <!-- Reading progress bar -->
