@@ -171,6 +171,7 @@ c. More Attribute specifier sequence(since C++11)
 
     type var_name{arg1, arg2, ....arg n}
 
+Example:
 ```cpp
 int main() {
     // 1 Since C++11, List-initialization, defined in the <initializer_list> header file, using a curly brace to solve everything.
@@ -197,7 +198,9 @@ int main() {
 
 ```
 
-### 3.For loop over a range.
+### 3.Range-based for loop
+
+Executes a for loop over a range.
 
 Used as a more readable equivalent 
 to the traditional for loop operating over a range of values,
@@ -207,44 +210,152 @@ such as all elements in a container.
     attr(optional) for ( range_declaration : range_expression ) loop_statement	(until C++20)
     attr(optional) for ( init-statement(optional)range_declaration : range_expression )	loop_statement (since C++20)
     
-attr
+    Description
+        
+    attr
     -	any number of attributes
 
-init-statement(C++20)	
+    init-statement(C++20)	
     -	either
-    • an expression statement (which may be a null statement ";")
-    • a simple declaration, typically a declaration of a variable with initializer, but it may declare arbitrarily many variables or be a structured binding declaration
-    Note that any init-statement must end with a semicolon, which is why it is often described informally as an expression or a declaration followed by a semicolon.
-
-ange_declaration
+        • an expression statement (which may be a null statement ";")
+        or
+        • a simple declaration, typically a declaration of a variable with initializer, but it may declare arbitrarily many variables or be a structured binding declaration
+        Note that any init-statement must end with a semicolon, which is why it is often described informally as an expression or a declaration followed by a semicolon.
+    
+    ange_declaration
 	-	a declaration of a named variable, whose type is the type of the element of the sequence represented by range_expression, or a reference to that type. Often uses the auto specifier for automatic type deduction
 
-range_expression
+    range_expression
 	-	any expression that represents a suitable sequence (either an array or an object for which begin and end member functions or free functions are defined, see below) or a braced-init-list.
 
-loop_statement
+    loop_statement
 	-	any statement, typically a compound statement, which is the body of the loop
-range_declaration may be a structured binding declaration	(since C++17)
+
+range_declaration may be a structured binding declaration	(since C++17)   
+```cpp
 for (auto&& [first,second] : mymap) 	
     {
         // use first and second
     }
-Explanation
+```
+> #### Explanation
+
+The above syntax produces code equivalent to the following (__range, __begin and __end are for exposition only):
+```cpp
+{
+    auto && __range = range_expression ;
+        for (auto __begin = begin_expr, __end = end_expr; __begin != __end; ++__begin) {
+        range_declaration = *__begin;
+        loop_statement
+    }
+}
+// (until C++17)
+
+{
+    auto && __range = range_expression ;
+    auto __begin = begin_expr ;
+    auto __end = end_expr ;
+    for ( ; __begin != __end; ++__begin) {
+        range_declaration = *__begin;
+        loop_statement
+    }
+}
+/* (since C++17)
+(until C++20) */
+
+{
+    init-statement
+    auto && __range = range_expression ;
+    auto __begin = begin_expr ;
+    auto __end = end_expr ;
+    for ( ; __begin != __end; ++__begin) {
+        range_declaration = *__begin;
+        loop_statement
+    }
+}
+```
+
+Example:
+```cpp
+#include <iostream>
+#include <vector>
+ 
+int main() {
+    std::vector<int> v = {0, 1, 2, 3, 4, 5};
+ 
+    for (const int& i : v) // access by const reference
+        std::cout << i << ' ';
+    std::cout << '\n';
+ 
+    for (auto i : v) // access by value, the type of i is int
+        std::cout << i << ' ';
+    std::cout << '\n';
+ 
+    for (auto&& i : v) // access by forwarding reference, the type of i is int&
+        std::cout << i << ' ';
+    std::cout << '\n';
+ 
+    const auto& cv = v;
+ 
+    for (auto&& i : cv) // access by f-d reference, the type of i is const int&
+        std::cout << i << ' ';
+    std::cout << '\n';
+ 
+    for (int n : {0, 1, 2, 3, 4, 5}) // the initializer may be a braced-init-list
+        std::cout << n << ' ';
+    std::cout << '\n';
+ 
+    int a[] = {0, 1, 2, 3, 4, 5};
+    for (int n : a) // the initializer may be an array
+        std::cout << n << ' ';
+    std::cout << '\n';
+ 
+    for ([[maybe_unused]] int n : a)  
+        std::cout << 1 << ' '; // the loop variable need not be used
+    std::cout << '\n';
+ 
+    for (auto n = v.size(); auto i : v) // the init-statement (C++20)
+        std::cout << --n + i << ' ';
+    std::cout << '\n';
+ 
+}
+```
 
 ### 4.Structured Binding
 Binds the specified names to subobjects or elements of the initializer.
     Like a reference, a structured binding is an alias to an existing object. Unlike a reference, a structured binding does not have to be of a reference type.
     
-> syntax：
+> #### syntax：
     
     attr(optional) cv-auto ref-operator(optional) [ identifier-list ] = expression ;    (1) 	
     attr(optional) cv-auto ref-operator(optional) [ identifier-list ] { expression } ;  (2) 	
     attr(optional) cv-auto ref-operator(optional) [ identifier-list ] ( expression ) ;  (3) 
     
-    attr	-	sequence of any number of attributes
-    cv-auto	-	possibly cv-qualified type specifier auto, may also include storage-class-specifier static or thread_local; including volatile in cv-qualifiers is deprecated (since C++20)
-    ref-qualifier	-	either & or &&
-    identifier-list	-	list of comma-separated identifiers introduced by this declaration
-    expression	-	an expression that does not have the comma operator at the top level (grammatically, an assignment-expression), and has either array or non-union class type. If expression refers to any of the names from identifier-list, the declaration is ill-formed.
+    Description:
 
+    attr	             -	sequence of any number of attributes
+    cv-auto	          -	possibly `cv-qualified` type specifier auto, may also include storage-class-specifier static or thread_local; including volatile in cv-qualifiers is deprecated (since C++20)
+    ref-qualifier	    -	either & or &&
+    identifier-list	  -    list of comma-separated identifiers introduced by this declaration
+    expression	       -	an expression that does not have the comma operator at the top level (grammatically, an assignment-expression), and has either array or non-union class type. If expression refers to any of the names from identifier-list, the declaration is ill-formed.
 
+Example:
+
+```cpp
+#include <iostream>
+int main()
+{
+    int a[2] = {1, 2};       // Assign a value to an array with two elements
+    
+    // structured-binding
+    auto [x, y] = a;           // Assign the values ​​of the two elements of this array to x and y respectively
+
+    auto& [xr, yr] = a;        // xr and yr is alias of a[0] and a[1]
+    // Change it, a more complete structured binding expression should add [[maybe_unused]] const at the head
+    
+    std::cout << x << " " << y << std::endl;
+    xr = 5;
+    std::cout << a[0] << " " << a[1] << std::endl; 
+    return 0;
+}
+```
