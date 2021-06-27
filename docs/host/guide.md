@@ -1,6 +1,6 @@
 ## Some infos of Bloger
 
-- named Xiaobin Lim
+- Named Xiaobin Lim
 - Born in Shantou, Guangdong, when Hongkong returned back to China.
 - Graduated from a common univerisity in Zhongshan, Guangdong China.
 

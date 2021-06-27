@@ -167,7 +167,7 @@ c. More Attribute specifier sequence(since C++11)
 
 &nbsp;&nbsp;&nbsp;&nbsp;In other words, it introduces brace-initialization that uses braces ({}) to enclose initializer values. 
 
-> #### syntax
+> #### Syntax
 
     type var_name{arg1, arg2, ....arg n}
 
@@ -200,12 +200,13 @@ int main() {
 
 ### 3.Range-based for loop
 
-Executes a for loop over a range.
+&nbsp;&nbsp;&nbsp;&nbsp;Executes a for loop over a range.
 
-Used as a more readable equivalent 
+&nbsp;&nbsp;&nbsp;&nbsp;Used as a more readable equivalent 
 to the traditional for loop operating over a range of values,
 such as all elements in a container.
-> #### Syntax
+
+> ##### Syntax
 
     attr(optional) for ( range_declaration : range_expression ) loop_statement	(until C++20)
     attr(optional) for ( init-statement(optional)range_declaration : range_expression )	loop_statement (since C++20)
@@ -238,7 +239,8 @@ for (auto&& [first,second] : mymap)
         // use first and second
     }
 ```
-> #### Explanation
+
+> ##### Explanation
 
 The above syntax produces code equivalent to the following (__range, __begin and __end are for exposition only):
 ```cpp
@@ -321,11 +323,12 @@ int main() {
 }
 ```
 
-### 4.Structured Binding
-Binds the specified names to subobjects or elements of the initializer.
-    Like a reference, a structured binding is an alias to an existing object. Unlike a reference, a structured binding does not have to be of a reference type.
+### 4.Structured Binding Declaration
+Binds the specified names to subobjects or elements of the initializer. (since C++17)
     
-> #### syntax：
+Like a reference, a structured binding is an alias to an existing object. Unlike a reference, a structured binding does not have to be of a reference type.
+    
+> ##### Syntax：
     
     attr(optional) cv-auto ref-operator(optional) [ identifier-list ] = expression ;    (1) 	
     attr(optional) cv-auto ref-operator(optional) [ identifier-list ] { expression } ;  (2) 	
@@ -339,23 +342,115 @@ Binds the specified names to subobjects or elements of the initializer.
     identifier-list	  -    list of comma-separated identifiers introduced by this declaration
     expression	       -	an expression that does not have the comma operator at the top level (grammatically, an assignment-expression), and has either array or non-union class type. If expression refers to any of the names from identifier-list, the declaration is ill-formed.
 
-Example:
+> ##### Scenes of usage
+		
+A structured binding declaration then performs the binding in one of three possible ways, depending on E ：
+	
+    Case 1: if E is an array type, then the names are bound to the array elements.
+	Case 2: if E is a non-union class type and std::tuple_size<E> is a complete type with a member named value (regardless of the type or accessibility of such member), then the "tuple-like" binding protocol is used.
+    Case 3: if E is a non-union class type but std::tuple_size<E> is not a complete type, then the names are bound to the accessible data members of E.
+			
+Each of the three cases is described in more detail below.
+	
+Each structured binding has a referenced type, defined in the description below. 
+This type is the type returned by decltype when applied to an unparenthesized structured binding.
 
+- Case 1: binding an array
+
+        1. Each identifier in the identifier-list becomes the name of an lvalue that refers to the corresponding element of the array. 
+        2. The number of identifiers must equal the number of array elements.
+        3. The referenced type for each identifier is the array element type. Note that if the array type E is cv-qualified, so is its element type.
+
+    Example:
+    ```cpp
+    #include <iostream>
+    int main()
+    {
+        int a[2] = {1, 2};       // Assign a value to an array with two elements
+        
+        // structured-binding
+        auto [x, y] = a;           // Assign the values ​​of the two elements of this array to x and y respectively
+
+        auto& [xr, yr] = a;        // xr and yr is alias of a[0] and a[1]
+        // Change it, a more complete structured binding expression should add [[maybe_unused]] const at the head
+        
+        std::cout << x << " " << y << std::endl;
+        xr = 5;
+        std::cout << a[0] << " " << a[1] << std::endl; 
+        return 0;
+    }
+    ```
+
+- Case2 and Case3 details see the [Refference Manual](https://en.cppreference.com/w/cpp/language/structured_binding)
+
+### 5.Placeholder type specifiers
+
+For variables, specifies that the type of the variable that is being declared will be automatically deduced from its initializer.(since C++11)
+    
+    For functions, specifies that the return type will be deduced from its return statements.(since C++14)
+    For non-type template parameters, specifies that the type will be deduced from the argument.(since C++17)
+
+> ##### Syntax
+
+    [type-constraint(optional)] auto	            (1)	(since C++11)
+    [type-constraint(optional)] decltype(auto)	  (2)	(since C++14)
+
+    Description:
+    type-constraint(C++20)	
+    -	a concept name, optionally qualified, optionally followed by a template argument list enclosed in <>
+        1) type is deduced using the rules for template argument deduction.
+        2) type is decltype(expr), where expr is the initializer.
+> ##### Usage
+
+Example:
 ```cpp
 #include <iostream>
+#include <utility>
+ 
+template<class T, class U>
+auto add(T t, U u) { return t + u; } // the return type is the type of operator+(T, U)
+ 
+// perfect forwarding of a function call must use decltype(auto)
+// in case the function it calls returns by reference
+template<class F, class... Args>
+decltype(auto) PerfectForward(F fun, Args&&... args) 
+{ 
+    return fun(std::forward<Args>(args)...); 
+}
+ 
+template<auto n> // C++17 auto parameter declaration
+auto f() -> std::pair<decltype(n), decltype(n)> // auto can't deduce from brace-init-list
+{
+    return {n, n};
+}
+ 
 int main()
 {
-    int a[2] = {1, 2};       // Assign a value to an array with two elements
-    
-    // structured-binding
-    auto [x, y] = a;           // Assign the values ​​of the two elements of this array to x and y respectively
-
-    auto& [xr, yr] = a;        // xr and yr is alias of a[0] and a[1]
-    // Change it, a more complete structured binding expression should add [[maybe_unused]] const at the head
-    
-    std::cout << x << " " << y << std::endl;
-    xr = 5;
-    std::cout << a[0] << " " << a[1] << std::endl; 
-    return 0;
+    auto a = 1 + 2;          // type of a is int
+    auto b = add(1, 1.2);    // type of b is double
+    static_assert(std::is_same_v<decltype(a), int>);
+    static_assert(std::is_same_v<decltype(b), double>);
+ 
+    auto c0 = a;             // type of c0 is int, holding a copy of a
+    decltype(auto) c1 = a;   // type of c1 is int, holding a copy of a
+    decltype(auto) c2 = (a); // type of c2 is int&, an alias of a
+    std::cout << "a, before modification through c2 = " << a << '\n';
+    ++c2;
+    std::cout << "a,  after modification through c2 = " << a << '\n';
+ 
+    auto [v, w] = f<0>(); //structured binding declaration
+ 
+    auto d = {1, 2}; // OK: type of d is std::initializer_list<int>
+    auto n = {5};    // OK: type of n is std::initializer_list<int>
+//  auto e{1, 2};    // Error as of DR n3922, std::initializer_list<int> before
+    auto m{5};       // OK: type of m is int as of DR n3922, initializer_list<int> before
+//  decltype(auto) z = { 1, 2 } // Error: {1, 2} is not an expression
+ 
+    // auto is commonly used for unnamed types such as the types of lambda expressions
+    auto lambda = [](int x) { return x + 3; };
+ 
+//  auto int x; // valid C++98, error as of C++11
+//  auto x;     // valid C, error in C++
 }
 ```
+
