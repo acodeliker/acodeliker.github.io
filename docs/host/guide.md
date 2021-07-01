@@ -1,7 +1,7 @@
 ## Some infos of Bloger
 
 - Named Xiaobin Lim
-- Born in Shantou, Guangdong, when Hongkong returned back to China.
+- Born in Shantou, Guangdong, when Hongkong returned back to Motherland.
 - Graduated from a common univerisity in Zhongshan, Guangdong China.
 
 ## Hobbies
@@ -30,6 +30,7 @@
     2.skills-familiarization, not exclusive of
         
     > Linux: 
+
         Memeory and Disks Management
         Processing Management
         Network Management
@@ -37,10 +38,13 @@
         Shell(command-line interface, Scrpits)
 
     > Cmake Tool:
+
         Basis of Camke 
         
 
 - last year(2020)
     > preparing for the empoyment in the coming year
+    
     > secondly failed to pass the postgraudate-entrance-exam 
+    
     > Graduated on June 30th
