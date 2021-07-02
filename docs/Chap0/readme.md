@@ -323,6 +323,8 @@ int main() {
 }
 ```
 
+> [Original Address](https://en.cppreference.com/w/cpp/language/range-for)
+
 ### 4.Structured Binding Declaration
 Binds the specified names to subobjects or elements of the initializer. (since C++17)
     
@@ -455,6 +457,7 @@ int main()
 }
 ```
 
+> [Original Address](https://www.geeksforgeeks.org/lambda-expression-in-c/)
 
 ### 6.Lambda expression
 
@@ -564,3 +567,5 @@ The number of elements greater than or equal to 5 is : 2
 Factorial of 10 is : 3628800
 Square of 5 is : 25
 ```
+
+> [Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
