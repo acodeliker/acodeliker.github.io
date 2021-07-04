@@ -569,3 +569,118 @@ Square of 5 is : 25
 ```
 
 > [Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
+
+
+### 7.Smart pointer -- shared_ptr
+
+> #### Intro
+
+- With reference counting mechanism, support multiple pointer objects to point to the same piece of memory (shared)
+
+- Provide the swap() member function to exchange two objects of the same type, such as: 
+
+    ```cpp
+
+    shared_ptr<int> p1(new int(1));
+
+    shared_ptr<int> p2(new int(2));
+
+    p1.swap(p2); //After exchange p1=2,p2=1
+
+    cout<< *p1 <<endl; //print 2
+
+    cout<< *p2 <<endl; //print 1
+
+    ```
+
+-  Provide the unique() member function to determine whether the address of the pointer is referenced by other pointers
+
+- Provide the get() member function to get the address pointed to by the pointer object
+
+- Provide the reset() member function, set the address of its own pointer object to NULL, and count the reference to -1 (when the count is 0, it will automatically delete the memory)
+
+- Provide the use_count() member function, which can be used to view the number of reference counts, such as:
+
+    ```cpp
+    shared_ptr<int> sp1(new int(30)); //Count +1
+
+    cout<<sp1.use_count()<<endl; //Print count: 1
+
+    cout<<sp1.unique()<<endl; //Print: 1
+
+    shared_ptr<int> sp2(sp1); //Count +1
+
+    cout<<sp1.use_count()<<endl; //Print: 2
+
+    cout<<sp1.unique()<<endl; //Because the sp1 pointer object is referenced by sp2, print: 0
+
+    sp1.reset(); //Set the address of the sp1 pointer to NULL, count -1
+
+    cout<<sp1.get()<<endl; //The address of the sp1 pointer is NULL, print: 0
+
+    cout<<sp2.use_count()<<endl; //Print: 1
+
+    cout<<sp2.unique()<<endl; //Since sp1 is released, only sp2 points to the address of 30, so print: 1
+    ```
+
+> #### Usage
+```cpp
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+class Test
+{
+public:
+       int mvalue;
+       Test(int i=0)
+       {
+              mvalue=i;
+              cout<< "Test("<<mvalue<<")"<<endl;
+       }
+
+       ~Test()
+       {
+              cout<< "~Test("<<mvalue<<")"<<endl;
+       }
+};
+
+int main()
+{  
+       cout<<"*****begin*****"<<endl;
+
+       shared_ptr<Test> p1(new Test(1));
+       shared_ptr<Test> p2(p1);
+
+       cout<<"*p1="<< p1->mvalue<<","<<"*p2="<<p2->mvalue<<endl;
+
+       p1.reset();
+       p2.reset();     
+
+       cout<<"count:"<<p2.use_count()<<endl;
+
+       cout<<"*****end*****"<<endl;
+       return 0;
+}
+```
+
+```txt
+运行打印:
+
+*****begin*****
+Test(1)
+*p1=1, *p2=1
+~Test(1)
+count:0
+*****end*****
+
+From the results, we can see that after we release both p1 and p2, since count=0, we automatically delete the Test pointer.
+
+```
+
+
+
+Other smart pointers in STL (learned later, let's describe it in depth)
+
+> [Original Address](https://cloud.tencent.com/developer/article/1099957)
