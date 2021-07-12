@@ -4,7 +4,7 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;In simple terms, an attribute acts as an annotation or a note to the compiler which provides additional information about the code for optimization purposes and enforcing certain conditions on it. 
 
-&nbsp;&nbsp;&nbsp;&nbsp;Introduced in C++11, they have remained one of the best features of C++and are constantly being evolved with each new version of C++.
+&nbsp;&nbsp;&nbsp;&nbsp;Introduced in C++11, they have remained one of the best features of C++ and are constantly being evolved with each new version of C++.
 
 > #### Syntax:
 ```txt
@@ -323,7 +323,7 @@ int main() {
 }
 ```
 
-> [Original Address](https://en.cppreference.com/w/cpp/language/range-for)
+[Original Address](https://en.cppreference.com/w/cpp/language/range-for)
 
 ### 4.Structured Binding Declaration
 Binds the specified names to subobjects or elements of the initializer. (since C++17)
@@ -568,7 +568,7 @@ Factorial of 10 is : 3628800
 Square of 5 is : 25
 ```
 
-> [Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
+[Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
 
 
 ### 7.Smart pointer -- shared_ptr
@@ -683,4 +683,4 @@ From the results, we can see that after we release both p1 and p2, since count=0
 
 Other smart pointers in STL (learned later, let's describe it in depth)
 
-> [Original Address](https://cloud.tencent.com/developer/article/1099957)
+[Original Address](https://cloud.tencent.com/developer/article/1099957)
