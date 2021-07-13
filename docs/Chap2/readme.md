@@ -12,7 +12,8 @@ In software systems, there are often such special classes, and it is necessary t
 
 So we have to consider how to bypass the conventional constructor (users are not allowed to create an object) to provide a mechanism to ensure that there is only one instance of a class
 
-- Version 0
+> Version 0
+
 ```cpp
 class Singleton
 {
@@ -29,7 +30,6 @@ public:
 
         return m_instance;
     }
-
 private:
     Singleton(); //Private constructor, users are not allowed to generate objects themselves
 
@@ -39,29 +39,34 @@ private:
 };
 
 Singleton *Singleton::m_instance = nullptr; //Static members need to be initialized first
+
 ```
 
 This is the most classic implementation of the singleton pattern,
 
-- Make the constructor and copy constructor private, and use a lazy initialization method,
+    1. Make the constructor and copy constructor private, and use a lazy initialization method,
 
-- The object(Instance) will be generated when getInstance() is called for the first time, 
+    2. The object(Instance) will be generated when getInstance() is called for the first time, 
 
-- The object will not be generated if it is not called, and it does not occupy memory.
+    3. The object will not be generated if it is not called, and it does not occupy memory.
 
 
 However, in the case of multiple threads, this method is unsafe.
 
 Analysis: 
 
-1. Under normal circumstances, if thread A calls getInstance(), m_instance is initialized, 
-then when thread B calls getInstance() again, it will no longer execute new, and will directly return to the previously constructed object.
+    1. Under normal circumstances, if thread A calls getInstance(), m_instance is initialized, 
+    then when thread B calls getInstance() again, it will no longer execute new, 
+    and will directly return to the previously constructed object.
 
-2. However, in this case, the execution of m_instance = new Singleton() in thread A has not been completed yet. At this time, m_instance is still nullptr. Thread B is also executing m_instance = new Singleton(), which will generate two objects. Threads A and B may use the same object or two objects, which may cause program errors, and at the same time, memory leaks may occur.
+    2. However, in this case, the execution of m_instance = new Singleton() in thread A has not been completed yet. 
+    At this time, m_instance is still nullptr. Thread B is also executing m_instance = new Singleton(), which will generate two objects. 
+    Threads A and B may use the same object or two objects, which may cause program errors, and at the same time, memory leaks may occur.
 
 Thus:
 
-- Version 1
+> Version 1
+
 ```cpp
 // Guarantee thread safe, but the cost of the lock is vast high
 class Singleton {
@@ -100,7 +105,8 @@ So, can you judge whether the line: if (m_instance == nullptr) is satisfied firs
 
 This is the so-called double-checked locking (DCL) idea, DCL is double-checked locking.
 
-- Version 2
+> Version 2
+
 ```cpp
 // Double check lock, but it is not safe due to memory read and write reorder
 class Singleton {
@@ -152,13 +158,16 @@ You might think that these three steps are performed in sequence, but in fact, y
 
 In the c++ 11 version, finally there is such a mechanism to help us realize a cross-platform solution
 
-- Version 3
+> Version 3
+
 ```cpp
 // Cross-platform implementation after C++ 11 version
 
     // atomic Atomic operations provided in c++11
     std::atomic<Singleton*> Singleton::m_instance;  
+
     std::mutex Singleton::m_mutex;
+
 
 /*
 * std::atomic_thread_fence(std::memory_order_acquire); 
@@ -179,6 +188,7 @@ Singleton* Singleton::getInstance() {
     }
     return tmp;
 }
+
 ```
 
 Advantages of singleton mode:
