@@ -463,6 +463,56 @@ int main()
 
 C++ 11 introduced lambda expression to allow us write an inline function which can be used for short snippets of code that are not going to be reuse and not worth naming. 
 
+> ##### Info
+
+First look at an example which shows a simple lambda that is passed as the third argument to the std::sort() function   given by ISO C++ Standard:
+
+```cpp
+#include <algorithm>
+#include <cmath>
+
+void abssort(float* x, unsigned n) {
+    std::sort(x, x + n,        
+        // Lambda expression begins        
+        [](float a, float b) {
+                
+            return (std::abs(a) <std::abs(b));
+            
+        } // end of lambda expression
+    );
+}
+```
+
+The following figure can represent the syntax of Lambda expressions:
+
+<!-- ![](https://cdn.jsdelivr.net/gh/acodeliker/acodeliker.github.io/docs/_media/images/lambda.png) -->
+
+![_png](_media/images/lambda.png)
+
+1. capture clause (Also known as the lambda-introducer in the C++ specification.)
+
+2. parameter list Optional. (Also known as the lambda declarator)
+
+3. mutable specification Optional.
+
+4. exception-specification Optional.
+
+5. trailing-return-type Optional.
+
+6. lambda body
+
+That corresponds to the following:
+
+```txt
+[Capture list](Parameter list) mutable(optional) Exception attribute -> return type {
+
+// Function body
+}
+
+
+The above grammatical rules are well understood except for the things in the [capture list], except that the function name of the general function is omitted, and the return value is in the form of ->.
+```
+
 > ##### Syntax:
 
     In its simplest form lambda expression can be defined as follows:
@@ -473,9 +523,102 @@ C++ 11 introduced lambda expression to allow us write an inline function which c
 
 Generally return-type in lambda expression are evaluated by compiler itself and we don’t need to specify that explicitly and -> return-type part can be ignored but in some complex case as in conditional statement, compiler can’t make out the return type and we need to specify that.
 
+The so-called capture list can actually be understood as a type of parameter. By default, the internal function body of a lambda expression cannot use variables outside the function body. At this time, the capture list can be used to transfer external data.
+
+> capture clause
+
+Lambda introduces new variables in the C++14 function body. It can capture variables in the surrounding scope. Which variables can be captured, passed by value or referenced, it needs to be explained.
+
+```txt
+[]: Do not capture any variables by default;
+
+[=]: Capture all variables by value by default;
+
+[&]: Capture all variables by reference by default;
+
+[x]: Only capture x by value, not other variables;
+
+[&x]: Only capture x by reference, other variables are not captured;
+
+[=, &x]: By default, all variables are captured by value, but x is an exception, captured by reference;
+
+[&, x]: By default, all variables are captured by reference, but x is an exception, captured by value;
+
+[this]: Capture the current object by reference (actually copy the pointer);
+
+[*this]: Capture the current object by passing value;
+```
+
+For example, if you want to quote capture total and value capture factor, the following expressions can achieve the goal:
+
+```txt
+[&total, factor]
+
+[factor, &total]
+
+[&, factor]
+
+[factor, &]
+
+[=, &total]
+
+[&total, =]
+```
+
+When the default capture is used, only the variables used in the lambda body will be captured.
+
+
+When there is a default reference capture & in the capture list, no other captures can also have &. 
+In the same way, with the default value capture=, there can be no other default value capture=. 
+That is, an identifier or ``this`` cannot appear twice in the capture list. 
+
+Look at the following example:
+
+```cpp
+struct S {void f(int i); };
+void S::f(int i) {    
+    [&, i]{}; // OK
+    
+    [&, &i]{}; // ERROR: i preceded by & when & is the default
+    
+    [=, this]{}; // ERROR: this when = is the default
+
+    [=, *this]{ }; // OK: captures this by value. See below.
+    
+    [i, i]{}; // ERROR: i repeated
+}
+```
+
+After std:c++17, ``this`` pointer can be captured by ``*this``. By value capture, it means that the entire closure (closure) is copied to the place where the lambda is called. This closure is an anonymous function object that encapsulates the lambda expression. 
+The value capture of lambda is very useful in parallel or asynchronous operations. The corresponding code may be executed after the original object leaves the scope. Especially in a specific hardware architecture, it is not as good as NUMA.
+
+    You may wonder what is the meaning of the square bracket at the beginning of the lambda expression? 
+    In fact, this is a very important function of lambda expressions, that is, closures. 
+    Here we first talk about the general principle of lambda expression: whenever you define a lambda expression, the compiler will automatically generate an anonymous class (this class of course overloads the () operator), we call it a closure type ( 
+    closure type). 
+    Then at runtime, this lambda expression will return an anonymous closure instance, which is actually an rvalue. 
+    Therefore, the result of our lambda expression above is a closure. 
+    One of the power of closures is that they can capture variables in their encapsulation scope by value or reference. The square brackets in front are used to define the capture mode and variables, and we call them lambda capture blocks.
+
+In the above capture method, please note that it is best not to use the default capture of [=] and [&]. 
+Dangling references are likely to occur, because reference capture does not extend the life cycle of the referenced variable:
+
+```cpp
+std::function<int(int)> add_x(int ​​x)
+{
+    return [&](int a) {return x + a; };
+}
+```
+
+Because the parameter x is only a temporary variable, it is destroyed after the function is called, but the returned lambda expression refers to the variable, but when this expression is called, it refers to a garbage value, so it will produce meaningless results.
+
+[more examples of lambda expression](https://docs.microsoft.com/en-us/cpp/cpp/examples-of-lambda-expressions)
+
+
 > ##### Usage
 
 Various uses of lambda expression with standard function are given below :// C++ program to demonstrate lambda expression in C++
+
 ```cpp
 #include <bits/stdc++.h>
 using namespace std;
@@ -568,7 +711,9 @@ Factorial of 10 is : 3628800
 Square of 5 is : 25
 ```
 
-[Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
+[Original Reference 0](https://docs.microsoft.com/en-us/cpp/cpp/lambda-expressions-in-cpp)
+[Original Reference 1](https://zhuanlan.zhihu.com/p/143884880)
+[Original Reference 2](https://www.geeksforgeeks.org/lambda-expression-in-c/)
 
 
 ### 7.Smart pointer
