@@ -571,116 +571,271 @@ Square of 5 is : 25
 [Original address](/https://www.geeksforgeeks.org/lambda-expression-in-c/)
 
 
-### 7.Smart pointer -- shared_ptr
+### 7.Smart pointer
 
-> #### Intro
+!> need to include header:&lt;memory&gt;
 
-- With reference counting mechanism, support multiple pointer objects to point to the same piece of memory (shared)
+- auto_ptr
 
-- Provide the swap() member function to exchange two objects of the same type, such as: 
+    1. At the end of the life cycle, automatically destroy the pointed memory space
+
+    !> ps: Cannot point to a heap array (because the destructor of auto_ptr uses delete to delete pointers, not delete[])
+
+    2. The constructor of auto_ptr is of explicit type, so it can only display initialization, such as:
 
     ```cpp
+    auto_ptr<int> ap1(new int(1)); //Initialize correctly, create an ap1 class template object, make the pointer in the class template an int* type, and point to the address of 1.
 
-    shared_ptr<int> p1(new int(1));
+    int* p = new int(1);
 
-    shared_ptr<int> p2(new int(2));
+    auto_ptr<int> ap2(p); //initialization is correct
 
-    p1.swap(p2); //After exchange p1=2,p2=1
+    // auto_ptr<int> ap3 = new int(2); //Error, cannot be initialized implicitly
+    ```
 
-    cout<< *p1 <<endl; //print 2
+    3. Provide the get() member function, which can be used to view the pointer address in the class. For example:
 
-    cout<< *p2 <<endl; //print 1
+    ```cpp
+    auto_ptr<int> ap(new int(1));
+
+    cout<< ap.get()<<endl; //Print the address of the value 1: 0x6d2d18
+        
+
+    int *p =ap.get();
+
+    cout<< *p<<endl; //Print the value 1
+    ```
+
+    4. A piece of heap space belongs to only one smart pointer object (because when multiple smart pointers pointing to the same address call the destructor, a bug will occur)
+
+    5. When auto_ptr is copied or assigned, the address pointed to by its own pointer will be preempted, such as:
+
+    ```cpp
+    auto_ptr<int> p1(new int(1));
+
+    auto_ptr<int> p2(new int(2));
+
+    p1 = p2; //First delete the class member pointer of the p1 object, then assign the class member pointer of the p2 object to p1, and finally modify the p2 pointer address to NULL
+
+    cout<<"p2 ="<<p2.get()<<endl; //Print: p2=0
+
+    //cout<<*p2<<endl; //error, because p2=0
+    ```
+
+- shared_ptr 
+    
+    > #### Intro
+
+    1. With reference counting mechanism, support multiple pointer objects to point to the same piece of memory (shared)
+
+    2. Provide the swap() member function to exchange two objects of the same type, such as: 
+
+        ```cpp
+
+        shared_ptr<int> p1(new int(1));
+
+        shared_ptr<int> p2(new int(2));
+
+        p1.swap(p2); //After exchange p1=2,p2=1
+
+        cout<< *p1 <<endl; //print 2
+
+        cout<< *p2 <<endl; //print 1
+
+        ```
+
+    3. Provide the unique() member function to determine whether the address of the pointer is referenced by other pointers
+
+    4. Provide the get() member function to get the address pointed to by the pointer object
+
+    5. Provide the reset() member function, set the address of its own pointer object to NULL, and count the reference to -1 (when the count is 0, it will automatically delete the memory)
+
+    6. Provide the use_count() member function, which can be used to view the number of reference counts, such as:
+
+        ```cpp
+        shared_ptr<int> sp1(new int(30)); //Count +1
+
+        cout<<sp1.use_count()<<endl; //Print count: 1
+
+        cout<<sp1.unique()<<endl; //Print: 1
+
+        shared_ptr<int> sp2(sp1); //Count +1
+
+        cout<<sp1.use_count()<<endl; //Print: 2
+
+        cout<<sp1.unique()<<endl; //Because the sp1 pointer object is referenced by sp2, print: 0
+
+        sp1.reset(); //Set the address of the sp1 pointer to NULL, count -1
+
+        cout<<sp1.get()<<endl; //The address of the sp1 pointer is NULL, print: 0
+
+        cout<<sp2.use_count()<<endl; //Print: 1
+
+        cout<<sp2.unique()<<endl; //Since sp1 is released, only sp2 points to the address of 30, so print: 1
+        ```
+
+    > #### Usage
+
+    ```cpp
+    #include <iostream>
+    #include <memory>
+
+    using namespace std;
+
+    class Test
+    {
+    public:
+        int mvalue;
+        Test(int i=0)
+        {
+                mvalue=i;
+                cout<< "Test("<<mvalue<<")"<<endl;
+        }
+
+        ~Test()
+        {
+                cout<< "~Test("<<mvalue<<")"<<endl;
+        }
+    };
+
+    int main()
+    {  
+        cout<<"*****begin*****"<<endl;
+
+        shared_ptr<Test> p1(new Test(1));
+        shared_ptr<Test> p2(p1);
+
+        cout<<"*p1="<< p1->mvalue<<","<<"*p2="<<p2->mvalue<<endl;
+
+        p1.reset();
+        p2.reset();     
+
+        cout<<"count:"<<p2.use_count()<<endl;
+
+        cout<<"*****end*****"<<endl;
+        return 0;
+    }
+    ```
+
+    ```txt
+    运行打印:
+        *****begin*****
+        Test(1)
+        *p1=1, *p2=1
+        ~Test(1)
+        count:0
+        *****end*****
+    From the results, we can see that after we release both p1 and p2, since count=0, we automatically delete the Test pointer.
 
     ```
 
--  Provide the unique() member function to determine whether the address of the pointer is referenced by other pointers
+    Other smart pointers in STL (learned later, let's describe it in depth)
 
-- Provide the get() member function to get the address pointed to by the pointer object
+    [Original Address](https://cloud.tencent.com/developer/article/1099957)
 
-- Provide the reset() member function, set the address of its own pointer object to NULL, and count the reference to -1 (when the count is 0, it will automatically delete the memory)
 
-- Provide the use_count() member function, which can be used to view the number of reference counts, such as:
+- unique_ptr
+
+    The use of unique_ptr tramples
+
+        unique_ptr is an exclusive object, so it cannot be directly used as a parameter. What should I do?
+
+    > As a parameter
+    
+    what if the function takes unique_ptr as a parameter?
+
+    If you directly use unique_ptr as a parameter like the following, an error will definitely be reported, because it is not allowed to be copied:
 
     ```cpp
-    shared_ptr<int> sp1(new int(30)); //Count +1
+    #include<iostream>
 
-    cout<<sp1.use_count()<<endl; //Print count: 1
+    #include<memory>
 
-    cout<<sp1.unique()<<endl; //Print: 1
+    void test(std::unique_ptr<int> p)
+    {
+        *p = 10;
+    }
 
-    shared_ptr<int> sp2(sp1); //Count +1
+    int main()
+    {
+        std::unique_ptr<int> up(new int(42));
+    
+        test(up);//Trying to pass in unique_ptr, compile error
+    
+        std::cout<<*up<<std::endl;
+    
+        return 0;
 
-    cout<<sp1.use_count()<<endl; //Print: 2
+    }   
+    ```
+    
+    The above code compilation will directly report an error. 
 
-    cout<<sp1.unique()<<endl; //Because the sp1 pointer object is referenced by sp2, print: 0
+    Of course, we can pass ordinary pointers to the function, and use the get function to get raw pointers, such as:
 
-    sp1.reset(); //Set the address of the sp1 pointer to NULL, count -1
+    ```cpp
+    #include<iostream>
+    #include<memory>
+    
+    void test(int *p)
+    {
+        *p = 10;
+    }
+    int main()
+    { 
+        std::unique_ptr<int> up(new int(42));
+    
+        test(up.get());//Pass in a bare pointer as a parameter
+    
+        std::cout<<*up<<std::endl;//output 10
+    
+        return 0;
+    }
+    ```
+    Or use a reference as a parameter:
 
-    cout<<sp1.get()<<endl; //The address of the sp1 pointer is NULL, print: 0
+    ```cpp
+    #include<iostream>
+    #include<memory>
+    void test(std::unique_ptr<int> &p)
+    {
+        *p = 10;
+    }
 
-    cout<<sp2.use_count()<<endl; //Print: 1
-
-    cout<<sp2.unique()<<endl; //Since sp1 is released, only sp2 points to the address of 30, so print: 1
+    int main() {
+        std::unique_ptr<int> up(new int(42));
+    
+        test(up);
+    
+        std::cout<<*up<<std::endl;//output 10
+    
+        return 0;
+    }
     ```
 
-> #### Usage
-```cpp
-#include <iostream>
-#include <memory>
+    Of course, if you don’t need to use it anymore, you can transfer it completely and hand over the object to the function you call for management. 
+    
+    Here you can use the move semantic:
 
-using namespace std;
+    ```cpp
+    #include<iostream>
 
-class Test
-{
-public:
-       int mvalue;
-       Test(int i=0)
-       {
-              mvalue=i;
-              cout<< "Test("<<mvalue<<")"<<endl;
-       }
+    #include<memory>
 
-       ~Test()
-       {
-              cout<< "~Test("<<mvalue<<")"<<endl;
-       }
-};
+    void test(std::unique_ptr<int> p)
+    {       
+        *p = 10;
+    }
 
-int main()
-{  
-       cout<<"*****begin*****"<<endl;
+    int main(
+    {
+        std::unique_ptr<int> up(new int(42));
+        
+        test(std::move(up));
+        //test(std::unique_ptr<int>(up.release())); //This way is also possible
+        
+        return 0;
+    }
+    ```
 
-       shared_ptr<Test> p1(new Test(1));
-       shared_ptr<Test> p2(p1);
-
-       cout<<"*p1="<< p1->mvalue<<","<<"*p2="<<p2->mvalue<<endl;
-
-       p1.reset();
-       p2.reset();     
-
-       cout<<"count:"<<p2.use_count()<<endl;
-
-       cout<<"*****end*****"<<endl;
-       return 0;
-}
-```
-
-```txt
-运行打印:
-
-*****begin*****
-Test(1)
-*p1=1, *p2=1
-~Test(1)
-count:0
-*****end*****
-
-From the results, we can see that after we release both p1 and p2, since count=0, we automatically delete the Test pointer.
-
-```
-
-
-
-Other smart pointers in STL (learned later, let's describe it in depth)
-
-[Original Address](https://cloud.tencent.com/developer/article/1099957)
+    [Original Address](https://zhuanlan.zhihu.com/p/91328039)
