@@ -465,7 +465,7 @@ C++ 11 introduced lambda expression to allow us write an inline function which c
 
 > ##### Info
 
-First look at an example which shows a simple lambda that is passed as the third argument to the std::sort() function   given by ISO C++ Standard:
+First look at an example which shows a simple lambda that is passed as the third argument to the std::sort() function given by ISO C++ Standard:
 
 ```cpp
 #include <algorithm>
@@ -485,9 +485,8 @@ void abssort(float* x, unsigned n) {
 
 The following figure can represent the syntax of Lambda expressions:
 
-<!-- ![](https://cdn.jsdelivr.net/gh/acodeliker/acodeliker.github.io/docs/_media/images/lambda.png) -->
-
-![_png](_media/images/lambda.png)
+![_png](https://cdn.jsdelivr.net/gh/acodeliker/acodeliker.github.io/docs/_media/images/lambda.png)
+<!-- ![_png](_media/images/lambda.png) -->
 
 1. capture clause (Also known as the lambda-introducer in the C++ specification.)
 
@@ -518,7 +517,7 @@ The above grammatical rules are well understood except for the things in the [ca
     In its simplest form lambda expression can be defined as follows:
     [ capture clause ] (parameters) -> return-type  
     {   
-    definition of method   
+        definition of method   
     } 
 
 Generally return-type in lambda expression are evaluated by compiler itself and we don’t need to specify that explicitly and -> return-type part can be ignored but in some complex case as in conditional statement, compiler can’t make out the return type and we need to specify that.
@@ -614,6 +613,149 @@ Because the parameter x is only a temporary variable, it is destroyed after the 
 
 [more examples of lambda expression](https://docs.microsoft.com/en-us/cpp/cpp/examples-of-lambda-expressions)
 
+> Value capture
+
+Similar to parameter passing by value, the premise of value capture is that the variable can be copied. The difference is that the captured variable is copied when the lambda expression is created, rather than when it is called:
+
+```cpp
+void lambda_value_capture() {
+    int value = 1;
+        
+    auto copy_value = [value] {
+        return value;
+    };
+    
+    value = 100;
+    auto stored_value = copy_value(); 
+    
+    std::cout << "stored_value = "<< stored_value << std::endl; 
+    // At this time, stored_value == 1, and value == 100.
+    // Because copy_value saves a copy of value when it is created
+}
+```
+
+> Reference capture
+
+Similar to passing by reference, reference capture saves the reference, and the value will change:
+
+```cpp
+void lambda_reference_capture() {
+    int value = 1;
+    
+    auto copy_value = [&value] {    
+        return value;
+    };
+    value = 100;
+    auto stored_value = copy_value();
+    std::cout << "stored_value = "<< stored_value << std::endl;
+    // At this time, stored_value == 100, value == 100.
+    // because copy_value stores a reference
+}
+```
+
+**Value capture** vs **reference capture**, especially multithreading:
+
+    1. Reference capture can be used to modify external variables, but value capture cannot (mutable allows the copy to be modified, not the original value).
+
+    2. Reference capture reflects the update of external parameters, but value capture does not.
+
+    3. Reference capture introduces a lifetime dependency, but value capture does not, which is very important in asynchronous operations. In async lambda, if the reference captures a local variable, the lambda runs, and the local variable disappears, there will be an access violation problem. Refer to the Dangling references example above.
+
+> ``this`` pointer
+
+```cpp
+// function_lambda_expression.cpp
+// compile with: /EHsc /W4
+#include <algorithm>
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Scale
+{
+public:
+    // The constructor.
+    explicit Scale(int scale) : _scale(scale) {}
+
+    // Prints the product of each element in a vector object
+    // and the scale value to the console.
+    void ApplyScale(const vector<int>& v) const
+    {
+        for_each(v.begin(), v.end(), [=](int n) { cout << n * _scale << endl; });
+    }
+
+private:
+    int _scale;
+};
+
+int main()
+{
+    vector<int> values;
+    values.push_back(1);
+    values.push_back(2);
+    values.push_back(3);
+    values.push_back(4);
+
+    // Create a Scale object that scales elements by 3 and apply
+    // it to the vector object. Does not modify the vector.
+    Scale s(3);
+    s.ApplyScale(values); // 3 6 9 12
+}
+```
+
+To use lambda expressions in functions, you can use an explicit this pointer:
+
+```cpp
+// capture "this" by reference
+void ApplyScale(const vector<int>& v) const
+{
+   for_each(v.begin(), v.end(),
+      [this](int n) { cout << n * _scale << endl; });
+}
+
+// capture "this" by value (Visual Studio 2017 version 15.3 and later) c++17
+void ApplyScale2(const vector<int>& v) const
+{
+   for_each(v.begin(), v.end(),
+      [*this](int n) { cout << n * _scale << endl; });
+}
+```
+
+You can also use the implicit this pointer:
+
+```cpp
+void ApplyScale(const vector<int>& v) const
+{
+    for_each(v.begin(), v.end(), 
+        [=](int n) {cout << n * _scale << endl; });
+}
+```
+
+There is a member method ApplyScale in this Scale class, which uses a lambda expression, which uses the data member _scale of the class. 
+Use the default value method [=] to capture variables. 
+You might think that this lambda expression also captures a copy of _scale, and the answer is wrong. 
+Because the data member _scale is not visible to the lambda expression, it can be verified with the following code:
+
+```cpp
+//Cannot compile because _scale is not in the range captured by lambda
+void ApplyScale(const vector<int>& v) const
+{
+    for_each(v.begin(), v.end(),
+        [_scale](int n) {cout << n * _scale << endl; });
+}
+```
+
+In the original code, each non-static method has a this pointer variable. Using the implicit this pointer, any member variable can be approached, so the lambda expression actually captures a copy of this pointer, so the original code is equivalent 
+in:
+
+```cpp
+void ApplyScale(const vector<int>& v) const
+{
+   for_each(v.begin(), v.end(),
+      [this](int n) { cout << n * this->_scale << endl; });
+}
+```
 
 > ##### Usage
 
