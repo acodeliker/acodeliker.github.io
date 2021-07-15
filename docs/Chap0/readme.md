@@ -1,4 +1,4 @@
-# <font size=6>C++ main new features</font>
+# <font size=6>C++ main new features since C++11</font>
 ### 1.Attributes(_Attribute specifier sequence_)
 &nbsp;&nbsp;&nbsp;&nbsp;one of the key features of modern C++ which allows the programmer to specify additional information to the compiler to enforce constraints(conditions), optimise certain pieces of code or do some specific code generation. 
 
@@ -404,7 +404,29 @@ For variables, specifies that the type of the variable that is being declared wi
         2) type is decltype(expr), where expr is the initializer.
 > ##### Usage
 
-Example:
+When using auto, the compiler determines the true type of the auto variable according to the context
+
+Eg: int c = 0; auto d = c;
+
+Note: When auto is used as the return value of a function, it can only be used to define a function, not to declare a function
+
+Such as:
+
+```cpp
+#pragma once
+class Test
+{
+public:
+    auto TestWork(int a ,int b);
+}; //The compilation fails;
+
+// Write the implementation in the header file, it can be compiled and passed,
+
+// Because the compiler can determine the true type of auto according to the return value of the function (similar to the Inline class member function
+```
+
+Another example:
+
 ```cpp
 #include <iostream>
 #include <utility>
@@ -457,7 +479,7 @@ int main()
 }
 ```
 
-> [Original Address](https://www.geeksforgeeks.org/lambda-expression-in-c/)
+> ##### [Original Address](https://www.geeksforgeeks.org/lambda-expression-in-c/)
 
 ### 6.Lambda expression
 
@@ -1134,7 +1156,7 @@ Square of 5 is : 25
 
 ### 8.Final/override/=default/=delete 
 
-> syntax
+> #### syntax
 
 a. Default and delete basically work on these 5 functions,
 
@@ -1176,3 +1198,138 @@ c. Two new functions are added to final:
 ![_png](https://cdn.jsdelivr.net/gh/acodeliker/acodeliker.github.io/docs/_media/images/final.png)
 
 
+### 9.What's new in the STL
+
+> Reference Wrapper
+
+When the template function parameter is a generic type, it is impossible to deduce whether to pass by value or by reference. By default, the method of passing by value is used. In this case, we can use std::ref to explicitly specify the template function to be instantiated by reference.
+
+```cpp  
+#include <functional>
+#include <iostream>
+    
+template <class T>
+void foo(T arg)
+{
+    arg++;
+}
+
+int main()    
+{
+    int count = 3;
+    foo(count); //At this time, the value is passed, the template is instantiated as foo(int), and the count value remains unchanged       
+    std::cout << count << std::endl;
+        
+    foo(std::ref(count)); //At this time, the reference is passed, the template is instantiated as foo(int&), and the count value is increased by 1
+    std::cout << count << std::endl;
+}
+```
+
+> [Smart Pointers](Chap0/readme?id=_7smart-pointer)
+
+> Functor
+
+Four boost libraries are also incorporated into the stl library:
+
+    function
+
+    bind
+
+    result_of
+
+    mem_fn
+
+Among them, function and bind have been introduced in the introduction to the boost library before. After the auto keyword is supported, it is easier to create a function through bind. We only need to use one sentence to create a functor of a member function.
+
+```cpp
+    #include <iostream>
+    #include <functional>
+    using namespace std;
+    using namespace std::placeholders; 
+
+    struct X
+    {
+        bool foo (int a) { cout<< a << endl; return false;}
+    };
+
+    int main()
+    { 
+        X x;
+
+        auto func = bind(&X::foo, &x, _1);
+        func(5);
+    }
+```
+
+!> When using bind, you need to add the using of std::placeholders, otherwise the compilation will report a syntax error.
+
+But I feel that bind is basically given seconds by lambda expressions. For the above example, the lambda expression is written as follows:
+
+```cpp
+    auto func = [&x](int a) { x.foo(a); };
+    function<void (int)> func = [&x](int a) { x.foo(a); };
+```
+
+Because lambda expressions are syntactic sugar, they are more readable (it feels that the simplicity is almost close to anonymous functions in C#), there is no placeholders such as _1, _2, and the way the function is called is also explicit and direct 
+Calling is more intuitive.
+
+And result_of feels basically useless after the introduction of auto. It is much simpler to use auto directly.
+
+> new additionally container
+
+The main additions to the container are as follows:
+
+    tuple
+    
+    array
+    
+    unordered_set和unordered_map
+
+Among them, tuple and array are basically standardized by boost-related libraries, while unordered_set and unordered_map are hash table set and map to provide higher query performance. 
+The usage method is similar to the original binary tree version, so I won't introduce it here.
+
+
+> Regular expression
+
+Boost's regex library is finally standardized. If you want to use string processing, you don't need to look for third-party regular expression libraries everywhere. 
+However, currently VC does not support unescaping characters like C# (gcc can), and the regular expressions in the code are still very difficult to read. I hope MS can support raw string literal as soon as possible.
+
+
+> Thread
+
+Boost's thread library is also standardized, and the packaged_task similar to the .Net TPL library is also standardized. Since it has a lot to introduce, I will write an article to introduce it, so I won't talk about it here.
+
+
+> Time function
+
+In fact, the C language standard library provides a time function, but it is extremely difficult to use. Now Boost's time function chrono has been standardized. Although it is still not as easy to use as .Net's TimeSpan, it is at least better than the standard C set. 
+too much.
+
+```cpp
+    #include <iostream>
+    #include <chrono>
+    #include <ctime>
+    using namespace std;
+
+    int fibonacci(int n)
+    {
+        if (n < 3) return 1;
+        return fibonacci(n-1) + fibonacci(n-2);
+    }
+
+    int main()
+    {
+        auto start = chrono::system_clock::now();
+        int result = fibonacci(40);
+        auto end = chrono::system_clock::now();
+
+        int elapsed_seconds = chrono::duration_cast<chrono::milliseconds>
+                                 (end-start).count();
+
+        auto end_time = chrono::system_clock::to_time_t(end);
+
+        std::cout << "result: " << result << endl
+                 << "finished computation at " << std::ctime(&end_time)
+                 << "elapsed time: " << elapsed_seconds << "ms\n";
+    }
+```
