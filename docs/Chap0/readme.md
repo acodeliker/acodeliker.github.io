@@ -1333,3 +1333,200 @@ too much.
                  << "elapsed time: " << elapsed_seconds << "ms\n";
     }
 ```
+
+[Original Address](https://www.cnblogs.com/TianFang/archive/2013/01/25/2876400.html)
+
+### 10. std::thread
+
+> #### Info
+
+1. Create a thread
+
+　　 It is relatively simple to create a thread. Use std thread to instantiate a thread object and then create it. Example:
+
+```cpp
+#include <iostream>
+#include <thread>
+using namespace std;
+
+void t1()  /// Used to simulate thread execution
+{
+    for (int i = 0; i < 20; ++i)
+    {
+        cout << "t1111\n";
+    }
+}
+void t2()
+{
+    for (int i = 0; i < 20; ++i)
+    {
+        cout << "t22222\n";
+    }
+}
+int main()
+{
+    thread th1(t1);  // Instantiate a thread object th1, use the function t1 to construct, and then the thread starts to execute (t1())
+    thread th2(t2);
+
+    cout << "here is main\n\n";
+
+    return 0;
+}
+
+```
+
+But this example is problematic, because the thread starts executing after the thread is created, but the main thread main() does not stop, still continues to execute and then exits. At this time, the thread object is still joinable, and the thread still exists but points to it. 
+The thread object has been destroyed, so an exception will be thrown.
+
+So how to ensure that the child thread exits the main thread after it has finished executing?
+
+
+2. thread::join()
+
+　　Using the join interface can solve the above problems. The role of join is to make the main thread wait until the execution of the sub-thread ends. Example:
+
+```cpp
+#include <iostream>
+#include <thread>
+using namespace std;
+
+void t1()
+{
+    for (int i = 0; i < 20; ++i)
+    {
+        cout << "t1111\n";
+    }
+}
+void t2()
+{
+    for (int i = 0; i < 20; ++i)
+    {
+        cout << "t22222\n";
+    }
+}
+int main()
+{
+    thread th1(t1);
+    thread th2(t2);
+    
+    th1.join(); //wait th1 run
+    th2.join(); //wait th2 run
+
+    cout << "here is main\n\n";
+
+    return 0;
+}
+```
+
+At this time, the child thread can be executed normally. At the same time, pay attention to the last output, which shows that main waits for the end of the child thread to continue execution.
+
+It should be noted that the thread object is no longer joinable after the join is executed, so join can only be called once
+
+3. thread::detach()
+
+    The problem mentioned in (1.) can also be solved by using detach. Detach is used to separate the thread object so that the thread can execute independently, but because there is no thread object pointing to the thread, it loses control over it.  When the object is destroyed, the thread will continue to execute in the background, but when the main program exits, there is no guarantee that the thread can finish executing. If there is no good control mechanism or this kind of background thread is more important, it is best not to use detach and join.
+
+```cpp
+int main()
+{
+    thread th1(t1);
+    thread th2(t2);
+    
+    th1.detach();
+    th2.detach();
+
+    cout << "here is main\n\n";
+
+    return 0;
+}
+```
+
+4. mutex
+
+　　 The header file is <mutex>. Mutex is used to ensure thread synchronization and prevent different threads from operating the same shared data at the same time.
+
+```cpp
+int cnt = 20;
+mutex m;
+void t1()
+{
+    while (cnt > 0)
+    {    
+        m.lock();
+        
+        if (cnt > 0)
+        {
+            --cnt;
+            cout << cnt << endl;
+        }
+
+        m.unlock();
+    }
+}
+void t2()
+{
+    while (cnt > 0)
+    {
+        m.lock();
+        
+        if (cnt > 0)
+        {
+            --cnt;
+            cout << cnt << endl;
+        }
+
+        m.unlock();
+    }
+}
+int main()
+{
+    
+    thread th1(t1);
+    thread th2(t2);
+    
+    th1.join();
+    th2.join();
+
+    return 0;
+}
+```
+
+But it is not safe to use mutex. When a thread exits abnormally before unlocking, other blocked threads cannot continue.
+
+
+5. std::lock_guard
+
+    The use of lock_guard is relatively safe. It is scope-based and can be self-unlocked. When the object is created, it will acquire a mutex lock like m.lock(). When the life cycle ends, it will automatically be destructed (unlock ), will not affect other threads because a thread exits abnormally. Example:
+
+```cpp
+int cnt = 20;
+mutex m;
+void t1()
+{
+    while (cnt > 0)
+    {    
+        lock_guard<mutex> lockGuard(m);
+        if (cnt > 0)
+        {
+            --cnt;
+            cout << cnt << endl;
+        }
+        
+    }
+}
+void t2()
+{
+    while (cnt > 0)
+    {
+        lock_guard<mutex> lockGuard(m);
+        if (cnt > 0)
+        {
+            --cnt;
+            cout << cnt << endl;
+        }
+    
+    }
+}
+```
+
+[Original Address](https://www.cnblogs.com/whlook/p/6573659.html)
