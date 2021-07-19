@@ -1297,12 +1297,12 @@ However, currently VC does not support unescaping characters like C# (gcc can), 
 
 > Thread
 
-Boost's thread library is also standardized, and the packaged_task similar to the .Net TPL library is also standardized. Since it has a lot to introduce, I will write an article to introduce it, so I won't talk about it here.
+Boost's thread library is also standardized, and the packaged_task similar to the .Net TPL library is also standardized. Since it has a lot to introduce, I will write an article to introduce it, so I won't talk about it here. it would be [there](Chap0/readme?id=_10std::thread)
 
 
 > Time function
 
-In fact, the C language standard library provides a time function, but it is extremely difficult to use. Now Boost's time function chrono has been standardized. Although it is still not as easy to use as .Net's TimeSpan, it is at least better than the standard C set. 
+In fact, the C language standard library provides a time function, but it is extremely difficult to use. Now Boost's time function `chrono` has been standardized. Although it is still not as easy to use as .Net's TimeSpan, it is at least better than the standard C set. 
 too much.
 
 ```cpp
@@ -1530,3 +1530,61 @@ void t2()
 ```
 
 [Original Address](https://www.cnblogs.com/whlook/p/6573659.html)
+
+### 11.`enum class` Strongly enumeration class
+
+> #### Info
+
+In standard C++, `enum` types are not type-safe. 
+
+`enum` types are treated as integers, which allows comparisons between two different `enum` types. 
+The only safety mechanism provided by C++03 is that an integer or an enumerated value cannot be implicitly converted to another enumerated type. 
+
+In addition, the integer type and size used by the enumeration are defined by the implementation method and cannot be specified explicitly. 
+
+Finally, the names of enumerations are all exposed in the general scope, so C++03 two different enumerations cannot have the same enumeration name.
+
+(For example, enum Side{ Right, Left }; and enum Thing{ Wrong, Right }; cannot be used together.)
+
+
+C++11 introduced a special "enumeration class" to avoid the above problems. 
+
+> #### Syntax
+
+```cpp
+enum class Enumeration{ Val1, Val2, Val3 = 100, Val4 /* = 101 */,};
+```
+
+This type of enumeration is type safe. 
+
+Enumeration cannot be implicitly converted to integers; nor can they be compared with integer values. 
+(The expression Enumeration::Val4 == 101 will trigger a compile-time error).
+
+> #### Usage
+
+#include <iostream>
+using namespace std;
+
+```cpp
+enum class Enumeration1
+{
+    Val1, // 0
+    Val2, // 1
+    Val3 = 100,
+    Val4 /* = 101 */
+};
+```
+
+// Specify the type
+```cpp
+int main(int argc, char** argv)
+{
+    Enumeration1 my=Enumeration1::Val3;
+    cout<<static_cast<int>(my)<<endl;
+
+    cout<<static_cast<double>(Enumeration2::val2)<<endl;
+    return 0;
+}
+
+//enum class Enumeration2:long {val1,val2=100,val3}; // val2=100.000400 error
+```
