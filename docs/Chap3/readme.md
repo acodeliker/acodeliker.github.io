@@ -191,8 +191,8 @@ int main() {
 ```
 ### 7.3
 
-```cpp
 
+```cpp
 // 益玩网络
 class A
 {
@@ -223,3 +223,5 @@ int main()
 		cout << pA->p << endl;
 	}
 }
+
+```
