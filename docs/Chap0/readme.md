@@ -1713,3 +1713,202 @@ In this case, only thread one has printed Waiting and has not yet wrapped. At th
 However, because the printing in the thread is protected by a lock, the printing of the text and the line feed are completed together, otherwise they will not be completed, so this situation is impossible.
 
 [Original Address](https://developer.aliyun.com/article/584964)
+
+### 13. automic operation
+
+To use atomic operations, we need to reference a new header file `<atomic>` in C++11. 
+
+In this header file, a class template `struct atomic` is defined to represent atomic data types. The GNU implementation (/usr/include/c++/4.8.3/atomic) is as follows:
+
+```cpp
+template<typename _Tp>
+struct atomic
+{
+private:
+   _Tp _M_i;
+public:
+    atomic() noexcept = default;
+    ~atomic() noexcept = default;
+    atomic(const atomic&) = delete;                //删除了拷贝构造
+    atomic& operator=(const atomic&) = delete;       
+    atomic& operator=(const atomic&) volatile = delete;   //删除了 operator=
+    constexpr atomic(_Tp __i) noexcept : _M_i(__i) { }
+    operator _Tp() const noexcept
+    {
+          return load();
+    }
+ 
+    operator _Tp() const volatile noexcept
+    {
+          return load();
+    }
+ 
+    _Tp operator=(_Tp __i) noexcept
+    {
+        store(__i);
+        return __i;
+    }
+ 
+    ...
+};
+```
+
+The `atomic` template also implements operator-overloading (see the atomic header file for the complete class structure), so you can use atomic data types like built-in data types (c++ guarantees that these operations are atomic operations) 
+. 
+Corresponding to the built-in data types, atomic data types have a corresponding type, which can be summarized as follows:
+
+```cpp
+std::atomic_char	std::atomic<char>
+std::atomic_schar	std::atomic<signed char>
+std::atomic_uchar	std::atomic<unsigned char>
+std::atomic_short	std::atomic<short>
+std::atomic_ushort	std::atomic<unsigned short>
+std::atomic_int	std::atomic<int>
+std::atomic_uint	std::atomic<unsigned int>
+std::atomic_long	std::atomic<long>
+std::atomic_ulong	std::atomic<unsigned long>
+std::atomic_llong	std::atomic<long long>
+std::atomic_ullong	std::atomic<unsigned long long>
+// 更多的请见：http://en.cppreference.com/w/cpp/atomic/atomic
+```
+
+[Original Address](https://www.cnblogs.com/ittinybird/p/4830834.html)
+
+### 14. std::function/bind
+
+> #### Info
+
+Although all the callable objects in C++ have a relatively uniform operation form, the definition methods are varied, which leads to the use of a unified way to save the callable object or transfer the callable object, it will be very cumbersome. 
+
+C++11 provides `std::function` and `std::bind` to unify various operations of callable objects.
+
+Different types may have the same calling form, such as:
+
+```cpp
+// common function
+int add(int a, int b){return a+b;} 
+
+// lambda expression
+auto mod = [](int a, int b){ return a % b;}
+
+// Fuctor
+struct divide{
+    int operator()(int denominator, int divisor){
+        return denominator/divisor;
+    }
+};
+```
+
+Although the above three callable objects are of different types, they share a calling form:
+
+```cpp
+    int(int ,int)
+```
+
+`std::function` can store the types above, like this:
+
+```cpp
+    std::function<int(int ,int)>  a = add; 
+    std::function<int(int ,int)>  b = mod ; 
+    std::function<int(int ,int)>  c = divide(); 
+```
+
+
+> 1. `std::function`:
+
+- `std::function` is a callable object wrapper. It is a class template that can hold all callable objects except class member function pointers. It can handle functions, function objects, and function pointers in a unified way, and allows saving and delay their execution.
+
+- Definition format: `std::function`<function type>.
+
+- `std::function` can take the place of the function pointer, because it can delay the execution of the function and is especially suitable for use as a callback function. It is more flexible and convenient than ordinary function pointers.
+
+> 2. `std::bind`
+
+The `std::bind` function can be regarded as a universal function adapter. It accepts a callable object and generates a new callable object to "adapt" to the parameter list of the original object.
+
+
+`std::bind` binds the callable object and its parameters together, and the result of binding can be saved using `std::function`. 
+`std::bind` mainly has the following two functions:
+
+- Bind the callable object and its parameters into a Functor;
+
+- Only bind some parameters, reduce the parameters passed in by the callable object.
+
+> #### Usage
+
+> 2.1 Bind common functions
+
+```cpp
+double my_divide (double x, double y) {return x/y;}
+auto fn_half = std::bind (my_divide,_1,2);  
+std::cout << fn_half(10) << '\n';                        // 5
+```
+
+- The first parameter of `bind` is the function name. When a normal function is used as an actual parameter, it will be implicitly converted to a function pointer. Therefore ``std::bind` (my_divide,_1,2)` is equivalent to ``std::bind` (&my_divide,_1,2)`;
+
+- _1 means placeholder, located in `<functional>`, `std::placeholders::_1`;
+
+> 2.2 Bind a Class member function
+
+```cpp
+struct Foo {
+    void print_sum(int n1, int n2)
+    {
+        std::cout << n1+n2 << '\n';
+    }
+    int data = 10;
+};
+int main() 
+{
+    Foo foo;
+    auto f = std::bind(&Foo::print_sum, &foo, 95, std::placeholders::_1);
+    f(5); // 100
+}
+```
+
+- When `bind` binds a class member function, the first parameter represents the pointer of the member function of the object, and the second parameter represents the address of the object.
+
+- Must be explicitly specified `&Foo::print_sum`, because the compiler will not implicitly convert the member function of the object into a function pointer, so you must add `&` before `Foo::print_sum`.
+
+- When using a pointer to an object member function, you must know which object the pointer belongs to, so the second parameter is the address of the object `&foo`;
+
+> 2.3 Bind a reference parameter
+
+By default, those parameters bound, which are not placeholders, are copied to the callable object returned by bind. 
+However, similar to lambda, sometimes we want to pass some bound parameters  by reference, or the types of bound parameters cannot be copied.
+
+```cpp
+#include <iostream>
+#include <functional>
+#include <vector>
+#include <algorithm>
+#include <sstream>
+using namespace std::placeholders;
+using namespace std;
+
+ostream & print(ostream &os, const string& s, char c)
+{
+    os << s << c;
+    return os;
+}
+
+int main()
+{
+    vector<string> words{"helo", "world", "this", "is", "C++11"};
+    ostringstream os;
+    char c = ' ';
+    for_each(words.begin(), words.end(), 
+                   [&os, c](const string & s){os << s << c;} );
+    cout << os.str() << endl;
+
+    ostringstream os1;
+    // ostream不能拷贝，若希望传递给bind一个对象，
+    // 而不拷贝它，就必须使用标准库提供的ref函数
+    for_each(words.begin(), words.end(),
+                   bind(print, ref(os1), _1, c));
+    cout << os1.str() << endl;
+}
+```
+
+[Original Address](https://www.jianshu.com/p/f191e88dcc80)
+
