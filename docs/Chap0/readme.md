@@ -1714,7 +1714,7 @@ However, because the printing in the thread is protected by a lock, the printing
 
 [Original Address](https://developer.aliyun.com/article/584964)
 
-### 13. automic operation
+### 13. atomic operation
 
 To use atomic operations, we need to reference a new header file `<atomic>` in C++11. 
 
@@ -1902,13 +1902,93 @@ int main()
     cout << os.str() << endl;
 
     ostringstream os1;
-    // ostream不能拷贝，若希望传递给bind一个对象，
-    // 而不拷贝它，就必须使用标准库提供的ref函数
-    for_each(words.begin(), words.end(),
-                   bind(print, ref(os1), _1, c));
+    // ostream cannot be copied, if you want to pass an object to bind,
+    // Instead of copying it, you must use the ref function provided by the standard library
+    for_each(words.begin(), words.end(), 
+                            bind(print, ref(os1), _1, c));
     cout << os1.str() << endl;
 }
 ```
 
 [Original Address](https://www.jianshu.com/p/f191e88dcc80)
 
+
+### 15. decltype
+
+The decltype keyword appears to solve the defect that the auto keyword can only infer the type of variables. 
+Its usage is very similar to sizeof:
+
+> #### Syntax
+
+```cpp
+decltype(expression)
+```
+
+In this process, the compiler analyzes the expression and gets its type, but does not actually calculate the value of the expression.
+
+Sometimes, we may need to calculate the type of an expression, for example:
+
+```cpp
+auto x = 1;
+
+auto y = 2;
+
+decltype(x+y) z;
+```
+
+> #### Usage
+ 
+Tailing return type, auto and decltype cooperate
+
+You might be thinking about whether auto can be used to derive the return type of a function. 
+Consider such an example of an addition function. In traditional C++, we must write:
+
+```cpp
+template<typename R, typename T, typename U>
+
+R add(T x, U y) {
+    
+return x+y
+
+}
+```
+
+Such code actually becomes very ugly, because the programmer must clearly indicate the return type when using this template function. 
+But in fact, we don't know what kind of operation the add() function will do, and what kind of return type it gets.
+
+
+This problem is solved in C++11. 
+Although you may respond right away using decltype to derive the type of x+y, write this code:
+
+```cpp
+decltype(x+y) add(T x, U y);
+```
+
+But in fact this way of writing does not pass compilation. 
+This is because when the compiler reads decltype(x+y), x and y have not yet been defined. 
+In order to solve this problem, C++11 also introduces a trailing return type, which uses the auto keyword to post the return type:
+
+```cpp
+template<typename T, typename U>
+
+auto add(T x, U y) -> decltype(x+y) {
+    
+return x+y;
+
+}
+```
+
+Starting from C++14, it is possible to directly make ordinary functions have return value derivation, so the following writing becomes legal:
+
+```cpp
+template<typename T, typename U>
+
+auto add(T x, U y) {
+    
+return x+y;
+
+}
+```
+
+
+[Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
