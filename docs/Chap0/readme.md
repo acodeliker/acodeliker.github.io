@@ -1990,5 +1990,96 @@ return x+y;
 }
 ```
 
+### 16. Template enhancement
+
+- External template
+
+In traditional C++, templates are only instantiated by the compiler when they are used. 
+As long as a fully defined template is encountered in the compiled code in each compilation unit (file), it will be instantiated. 
+This produces an increase in compilation time caused by repeated instantiation. 
+Also, we have no way to tell the compiler not to trigger template instantiation.
+
+
+C++11 introduces external templates and expands the original syntax that forces the compiler to instantiate templates at specific locations, so that the compiler can be explicitly told when to instantiate templates:
+
+```cpp
+template class std::vector<bool>; // forced instantiation
+
+extern template class std::vector<double>; // Do not instantiate the template in the compiled file
+```
+
+- Angle bracket ">"
+
+In traditional C++ compilers, >> is always treated as a right shift operator. 
+But in fact, we can easily write the code of the nested template:
+
+```cpp
+std::vector<std::vector<int>> wow;
+```
+
+This cannot be compiled under the traditional C++ compiler, but starting from C++11, consecutive right angle brackets will become legal and can be compiled smoothly.
+
+
+- Type alias template
+
+In traditional C++, typedef can define a new name for a type, but there is no way to define a new name for a template. 
+Because the template is not a type. 
+E.g:
+
+```cpp
+template< typename T, typename U, int value>
+
+class SuckType {
+
+public:
+    
+T a;
+    
+U b;
+    
+SuckType():a(value),b(value){}
+
+};
+
+template< typename U>
+
+typedef SuckType<std::vector<int>, U, 1> NewType; // illegal
+```
+
+C++11 uses using to introduce the following form of writing, and at the same time supports the same effect as traditional typedef:
+
+```cpp
+template <typename T>
+
+using NewType = SuckType<int, T, 1>; // legal
+```
+
+- Default template parameters
+
+We may define an addition function:
+
+```cpp
+template<typename T, typename U>
+
+auto add(T x, U y) -> decltype(x+y) {
+    
+return x+y
+
+}
+```
+
+But when using it, I found that to use add, you must specify the type of its template parameter every time.
+
+A convenience is provided in C++11 to specify the default parameters of the template:
+
+```cpp
+template<typename T = int, typename U = int>
+
+auto add(T x, U y) -> decltype(x+y) {
+    
+return x+y;
+
+}
+```
 
 [Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
