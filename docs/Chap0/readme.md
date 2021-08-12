@@ -2082,4 +2082,124 @@ return x+y;
 }
 ```
 
+### 17. Constructor
+
+> #### delegated construction
+
+C++11 introduces the concept of delegated construction, which allows the constructor to call another constructor in the same class, thereby simplifying the code:
+
+```cpp
+class Base {
+public:
+    int value1;
+    int value2;
+    Base() {
+        value1 = 1;
+    }
+    Base(int value) : Base() {  // 委托 Base() 构造函数
+        value2 = 2;
+    }
+
+```
+
+> #### Inheritance structure
+
+In the inheritance system, if the derived class wants to use the `constructor` of `base class`, it needs to be explicitly declared in the `constructor`.
+
+If the base class has a large number of different versions of the `constructor`, then a lot of corresponding `"transparent" constructors` have to be written in the `derived class`. 
+
+As follows:
+
+```cpp
+struct A
+{
+  A(int i) {}
+  A(double d,int i){}
+  A(float f,int i,const char* c){}
+  // ...else version of Constructors
+}；
+struct B:A
+{
+  B(int i):A(i){}
+  B(double d,int i):A(d,i){}
+  B(folat f,int i,const char* c):A(f,i,e){}
+  // ...else Constructors corresponded with Base-Constructors
+}；
+```
+
+Comparing to the method above, C++11 `inheritance structure`:
+
+```cpp
+struct A
+{
+  A(int i) {}
+  A(double d,int i){}
+  A(float f,int i,const char* c){}
+  //...
+}；
+struct B:A
+{
+  using A::A;
+  // a line can inherit from all Base-Constructors
+  //......
+}；
+```
+
+If an `inherited-constructor` is not used by related code, the compiler will not generate real function code for it, which saves more target code space than "transparently" transmitting the various `constructors` of `base class`.
+
+### 18. regular expression 
+
+Its library that provided by C++11, manipulates `std::string` object, initializes the pattern `std::regex` (essentially `std::basic_regex`), and matches through `std::regex_match` to generate `std::smatch` (essentially is a `std::match_results object`).
+
+
+We briefly introduce the use of this library through a simple example. 
+Consider the following regular expression:
+
+
+[az]+.txt: In this regular expression, [az] means to match a lowercase letter, + can match the previous expression multiple times, so [az]+ can match a string of one or more lowercase letters 
+. 
+In the regular expression, a. Means to match any character, and. After escape means to match the character., And the final txt means to strictly match the three letters of txt. 
+Therefore, the content of this regular expression to be matched is a text file with a file name of pure lowercase letters.
+
+std::regex_match is used to match strings and regular expressions. There are many different overloaded forms. 
+The simplest form is to pass in std::string and a std::regex for matching. When the match is successful, it will return true, otherwise it will return false. 
+
+E.g:
+
+```cpp
+#include <iostream>
+#include <string>
+#include <regex>
+
+int main() {
+    std::string fnames[] = {"foo.txt", "bar.txt", "test", "a0.txt", "AAA.txt"};
+    // In C++, `\` will be used as an escape character in a string. In order to pass `\.` as a regular expression into effect, it is necessary to escape `\` twice, so that there is `\\.`
+    std::regex txt_regex("[a-z]+\\.txt");
+    for (const auto &fname: fnames)
+        std::cout << fname << ": " << std::regex_match(fname, txt_regex) << std::endl;
+}
+```
+
+Another commonly used form is to pass in the three parameters `std::string` / `std::smatch` / `std::regex` one by one. The essence of `std::smatch` is actually `std::match_results`. 
+
+In the standard library, `std::smatch` is defined as `std::match_results`, which is a match_results of the substring iterator type. 
+
+Use std::smatch to easily obtain the matching results, for example:
+
+```cpp
+std::regex base_regex("([a-z]+)\\.txt");
+std::smatch base_match;
+for(const auto &fname: fnames) {
+    if (std::regex_match(fname, base_match, base_regex)) {
+        //  The first element of sub_match matches the entire string
+        //  The second element of sub_match matches the first bracket expression
+        if (base_match.size() == 2) {
+            std::string base = base_match[1].str();
+            std::cout << "sub-match[0]: " << base_match[0].str() << std::endl;
+            std::cout << fname << " sub-match[1]: " << base << std::endl;
+        }
+    }
+}
+```
+
 [Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
