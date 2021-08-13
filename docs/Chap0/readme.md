@@ -2203,3 +2203,68 @@ for(const auto &fname: fnames) {
 ```
 
 [Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
+
+### 19. Rvalue references and move semantics
+
+A simple example:
+
+```cpp
+
+// Use the following copy constructor:
+string(const string& that)
+{
+    size_t size = strlen(that.data) + 1;
+    data = new char[size];
+    memcpy(data, that.data, size);
+}
+
+string a(x);                      // line 1 : A deep copy of x is necessary because we may use x later, x is an lvalues.
+string b(x + y);                  // line 2 : The string object produced by the expression is an anonymous object, and there is no way to use it later
+string c(some_function_returning_a_string());       // line 3 : func_return cannot be used later
+
+// C++11 introduces a new mechanism called "Rvalue Reference", so that we can directly use rvalue parameters through overloading. 
+// All we have to do is write a constructor that takes an rvalue reference as a parameter:
+
+string(string&& that)   // string&& is an rvalue reference to a string
+{
+data = that.data;
+that.data = 0;
+}
+
+```
+
+We did not deeply copy the data in the heap memory, but only copied the pointer and nullified the pointer of the source object. 
+In fact, we "stole" the memory data belonging to the source object. 
+
+Since the source object is an rvalue and will not be used anymore, the client will not notice that the source object has been changed. 
+
+Here, we do not really copy, so we call this constructor "move constructor" (move constructor), whose job is to transfer resources from one object to another, rather than copy them.
+
+
+With rvalue references, let's look at the assignment operator:
+
+```cpp
+string& operator=(string that)
+{
+std::swap(data, that.data);
+return *this;
+}
+```
+
+Note that we are passing the value of the parameter that directly, so that will be initialized like any other object. So exactly, how is that initialized? 
+
+For C++ 98, the answer is the copy constructor, but for C++ 11, the compiler will choose between the copy constructor and the transfer constructor based on whether the argument is an lvalue or an rvalue.
+
+If it is a=b, then the copy constructor will be called to initialize that (because b is an lvalue), and the assignment operator will exchange data with the newly created object for a deep copy. 
+This is the definition of copy and swap idiom: construct a copy, exchange data with the copy, and let the copy be automatically destroyed within the scope. 
+Same here.
+
+
+If it is a = x + y, then the transfer constructor will be called to initialize that (because x+y is an rvalue), so there is no deep copy here, only efficient data transfer. 
+Relative to the parameter, that is still an independent object, but its constructor is useless (trivial), so the data in the heap does not need to be copied, but only transferred. 
+There is no need to copy him, because x+y is an rvalue, and again, there is no problem in transferring from the object pointed to by the rvalue.
+
+
+To summarize: the copy constructor performs a deep copy, because the source object itself must not be changed. 
+The transfer constructor can copy the pointer and empty the pointer of the source object. In this form, it is safe because the user can no longer use the object.
+
