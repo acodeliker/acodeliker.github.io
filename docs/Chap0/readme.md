@@ -2268,3 +2268,100 @@ There is no need to copy him, because x+y is an rvalue, and again, there is no p
 To summarize: the copy constructor performs a deep copy, because the source object itself must not be changed. 
 The transfer constructor can copy the pointer and empty the pointer of the source object. In this form, it is safe because the user can no longer use the object.
 
+We know that transferring lvalues ​​is very dangerous, but transferring rvalues ​​is very safe. 
+If C++ can distinguish between lvalue and rvalue parameters from the language level, I can completely eliminate lvalue transfer, or expose the transferred lvalue when calling, so that we don't inadvertently transfer the lvalue.
+
+
+C++11's answer to this question is an rvalue reference. 
+Rvalue reference is a new reference type for rvalue, the syntax is X&&. 
+The old reference type X& is now called an lvalue reference.
+
+
+One of the most useful functions using rvalue reference X&& as a parameter is the transfer constructor X::X(X&& source), its main function is to transfer the local resources of the source object to the current object.
+
+
+```cpp
+//In C++11, std::auto_ptr< T> has been replaced by std::unique_ptr< T >, which is the use of rvalue references. Its transfer constructor :
+unique_ptr(unique_ptr&& source)   // note the rvalue reference
+{
+    ptr = source.ptr;
+    source.ptr = nullptr;
+}
+
+T// his transfer constructor does the same thing as the copy constructor in auto_ptr, but it can only accept rvalues ​​as parameters.
+
+unique_ptr<Shape> a(new Triangle);
+unique_ptr<Shape> b(a);                 // error
+// a is an lvalue, but the parameter unique_ptr&& source can only accept rvalues, which is exactly what we need to prevent dangerous implicit transfers
+unique_ptr<Shape> c(make_triangle());       // okay
+```
+
+Sometimes we want the compiler to treat lvalues ​​as rvalues ​​in order to be able to use the transfer constructor, even if it is a bit unsafe. 
+For this purpose, C++11 provides a template function std::move in the header file <utility> of the standard library. 
+In fact, std::move simply converts an lvalue to an rvalue, it doesn't transfer anything by itself. 
+It just allows the object to be transferred.
+
+
+Here is how to transfer the left value correctly:
+
+```cpp
+unique_ptr<Shape> a(new Triangle);
+unique_ptr<Shape> b(a);              // still an error
+unique_ptr<Shape> c(std::move(a));   // okay
+```
+
+a no longer owns the Triangle object. 
+But it doesn’t matter, because by explicitly writing std::move(a), we are very clear about our intention: dear transfer constructor, you can do anything you want to a to initialize c; I will no longer 
+A is needed. Regarding a, please feel free to do so.
+
+
+Of course, if you continue to use a after using mova(a), it will undoubtedly be shooting yourself in the foot or causing serious operating errors.
+
+
+In short, std::move(some_lvalue) converts an lvalue to an rvalue (can be understood as a type conversion), making the next transfer possible.
+
+A example:
+
+```cpp
+class Foo
+{
+    unique_ptr<Shape> member;
+
+public:
+
+    Foo(unique_ptr<Shape>&& parameter)
+    : member(parameter)   // error, because parameter, whose type is an rvalue reference, can only indicate that parameter is a reference to an rvalue, and parameter itself is an lvaluem, Therefore, the above transfer of parameter is not allowed, you need to use std::move to display the conversion to the right value.
+    {}
+};
+```
+
+### 20. nullptr
+
+The purpose of nullptr is to replace NULL.
+
+
+In a sense, traditional C++ treats NULL and 0 as the same thing, depending on how the compiler defines NULL. Some compilers will define NULL as ((void*)0), and some will directly 
+It is defined as 0.
+
+
+C++ does not allow direct implicit conversion of void * to other types, but if NULL is defined as ((void*)0), then when char *ch = NULL; is compiled, NULL has to be defined as 0.
+
+
+This will still cause problems, which will cause confusion in the overloaded features of C++. Consider:
+
+```cpp
+void foo(char *);
+
+void foo(int);
+```
+
+For these two functions, if NULL is defined as 0, then foo(NULL); This statement will call foo(int), which leads to code violation of intuition.
+
+
+In order to solve this problem, C++11 introduced the nullptr keyword, which is specifically used to distinguish between null pointers and zeros.
+
+
+The type of nullptr is nullptr_t, which can be implicitly converted to the type of any pointer or member pointer, and can also be compared with them for equality or inequality.
+
+
+When you need to use NULL, get into the habit of using nullptr directly.
