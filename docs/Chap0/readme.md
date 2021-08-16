@@ -2202,7 +2202,6 @@ for(const auto &fname: fnames) {
 }
 ```
 
-[Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
 
 ### 19. Rvalue references and move semantics
 
@@ -2365,3 +2364,72 @@ The type of nullptr is nullptr_t, which can be implicitly converted to the type 
 
 
 When you need to use NULL, get into the habit of using nullptr directly.
+
+[Original Address](https://blog.csdn.net/jiange_zh/article/details/79356417)
+
+### 21. exception handling and noexcept
+
+Exception handling in C++ is detected at runtime rather than at compile time.
+
+In order to implement runtime detection, the compiler creates additional code, but this prevents program optimization.
+
+In practice, generally two exception throwing methods are commonly used:
+
+- An operation or function may throw an exception;
+
+- It is impossible for an operation or function to throw any exceptions.
+
+In the latter method, throw() is commonly used in previous C++ versions to indicate that it has been replaced by noexcept in C++11.
+
+```cpp
+    void swap(Type& x, Type& y) throw()   //C++99
+    {
+        x.swap(y);
+    }
+    void swap(Type& x, Type& y) noexcept  //C++11
+    {
+        x.swap(y);
+    }
+```
+
+It tells the compiler that no exceptions will occur in the function, which helps the compiler to optimize the program more.
+
+If at runtime, the noexecpt function throws an exception (if the function catches the exception and completes the processing, this is not an exception thrown), the program will terminate directly and call the std::terminate() function, the function 
+Internally, std::abort() is called to terminate the program.
+
+
+The use of noexcept is encouraged in the following situations:
+
+- Move constructor (move constructor)
+
+- Move assignment function
+
+- Destructor.
+
+Here to mention, in the new version of the compiler, the destructor is the keyword noexcept by default. 
+The following code can detect whether the compiler adds the keyword noexcept to the destructor.
+
+```cpp
+    struct X
+    {
+        ~X() { };
+    };
+    
+    int main()
+    {
+        X x;
+    
+        // This will not fire even in GCC 4.7.2 if the destructor is
+        // explicitly marked as noexcept(true)
+        static_assert(noexcept(x.~X()), "Ouch!");
+    }
+```
+
+- Leaf Function. 
+
+Leaf function means that no stack space is allocated within the function, other functions are not called, non-volatile registers are not stored, and exceptions are not handled.
+
+Finally, I would like to emphasize that if you are not in the above situation or you are not sure, do not use noexcept lightly.
+
+[Original Address](https://www.cnblogs.com/sword03/p/10020344.html)
+
