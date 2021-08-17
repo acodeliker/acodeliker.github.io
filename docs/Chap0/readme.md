@@ -2433,3 +2433,92 @@ Finally, I would like to emphasize that if you are not in the above situation or
 
 [Original Address](https://www.cnblogs.com/sword03/p/10020344.html)
 
+
+### 22. static_assert
+
+> #### background
+
+In order to reduce the possibility of conflicts with existing program variables, WG21 designed the name of this keyword to be very long, even including underscores. It can be said that the name cannot be ugly, but in some cases, it will still a conflict occurs, such as:
+
+```cpp
+static_assert(4<=sizeof(int), "error:small ints");
+```
+
+The intent of this line of code is to make sure that the length of the int integer type of the system at compile time (not at runtime) is not less than 4 bytes. If it is less than, the compiler will report an error saying that the integer type of the system is too small. 
+This is a valid code in C++11, and it may also be valid in C++98/03, because the programmer may have defined a function called static_assert to determine the int at runtime. 
+Is the type size not less than 4. 
+
+Obviously this is completely different from static_assert in C++11.
+
+> #### Introduction
+
+`static_assert` was introduced in C++11 to make assertions during compilation, so it is called static assertions.
+
+
+> ### syntax 
+
+```cpp
+static_assert (constant expression, prompt string).
+```
+
+If the value of the first parameter constant expression is `true` (`true` or non-zero), then `static_assert` does nothing, as if it does not exist, otherwise a compilation error will be generated, and the error location is the line of the `static_assert` statement. 
+The error prompt is the second parameter prompt string.
+
+
+> #### instruction
+
+Using `static_assert`, we can find more errors during compilation, use the compiler to enforce certain contracts, and help us improve the readability of compilation information, especially when used in templates.
+
+
+`static_assert` can be used in the global scope, in the namespace, in the scope of the class, in the scope of the function, almost unlimited use.
+
+
+When the compiler encounters a `static_assert` statement, it usually calculates its first parameter as a constant expression immediately, but if the constant expression depends on some template parameters, it will delay the calculation until the template is instantiated. 
+It is possible to check template parameters.
+
+
+In terms of performance, since `static_assert` is asserted during compilation and does not generate target code, `static_assert` will not cause any runtime performance loss.
+
+> #### example
+
+For example, static_assert is used in this code to check related configuration parameters during the compilation phase.
+
+```cpp
+bool operator==(const Http2PingFields& a, const Http2PingFields& b) {
+
+
+Static_assert((sizeof a.opaque_bytes) == Http2PingFields::EncodedSize(),
+
+
+"Why not the same size?");
+
+
+Return 0 ==
+
+
+Std::memcmp(a.opaque_bytes, b.opaque_bytes, sizeof a.opaque_bytes);
+
+
+}
+```
+
+> #### Related comparison
+
+We know that in the existing C++ standard, there are two facilities, assert and #error, which are also used to check errors, and there are also some third-party implementations of static assertions.
+
+
+`assert` is a run-time assertion. It is used to find errors during run-time. It cannot be found in the compile period in advance. It is not mandatory, nor can it improve the readability of compiled information. Since it is a run-time check, it is of course for performance. 
+Is influential, so often in the release version, the assert will be turned off;
+
+
+`#error` can be regarded as a pre-compilation-period assertion, not even an assertion. It can only display an error message during pre-compilation. It can do very little and can participate in the pre-compilation condition check. Because it cannot obtain compilation information, 
+Of course, no further analysis can be done.
+
+
+Then, before `stastic_assert` was submitted to the C++0x standard, in order to make up for the deficiencies of `assert` and `#error`, some third-party solutions appeared, which can be used for static checks during compile time, such as `BOOST_STATIC_ASSERT` and `LOKI_STATIC_CHECK`, but because they are al/l used 
+Some tricks implemented by the obscure features of the compiler are not very portable and simple, and they also reduce the compilation speed, and the functions are not perfect. For example, `BOOST_STATIC_ASSERT` cannot define error prompt text, while `LOKI_STATIC_CHECK` requires the prompt text to meet C++ syntax of the type definition.
+
+
+[Original Address1](https://www.jianshu.com/p/cb9446979645)
+
+[Original Address2](https://developer.aliyun.com/article/173868)
