@@ -2445,17 +2445,17 @@ static_assert(4<=sizeof(int), "error:small ints");
 ```
 
 The intent of this line of code is to make sure that the length of the int integer type of the system at compile time (not at runtime) is not less than 4 bytes. If it is less than, the compiler will report an error saying that the integer type of the system is too small. 
-This is a valid code in C++11, and it may also be valid in C++98/03, because the programmer may have defined a function called static_assert to determine the int at runtime. 
+This is a valid code in C++11, and it may also be valid in C++98/03, because the programmer may have defined a function called `static_assert` to determine the int at runtime. 
 Is the type size not less than 4. 
 
-Obviously this is completely different from static_assert in C++11.
+Obviously this is completely different from `static_assert` in C++11.
 
 > #### Introduction
 
 `static_assert` was introduced in C++11 to make assertions during compilation, so it is called static assertions.
 
 
-> ### syntax 
+> #### syntax 
 
 ```cpp
 static_assert (constant expression, prompt string).
@@ -2522,3 +2522,66 @@ Some tricks implemented by the obscure features of the compiler are not very por
 [Original Address1](https://www.jianshu.com/p/cb9446979645)
 
 [Original Address2](https://developer.aliyun.com/article/173868)
+
+
+### 23. alignas
+
+Specifies the alignment requirement of a type or an object.
+
+> #### Syntax
+
+```cpp
+alignas( expression )		
+alignas( type-id )		
+alignas( pack ... )		
+```
+
+1) alignas(expression) must be an integral constant expression that evaluates to `zero`, or to a valid value for an alignment or extended alignment.
+
+2) Equivalent to alignas(alignof(type))
+
+3) Equivalent to multiple `alignas` specifiers applied to the same declaration, one for each member of the parameter pack, which can be either type or 
+non-type parameter pack.
+
+> #### Explanation
+
+The `alignas` specifier may be applied to the declaration of a variable or a non-bitfield class data member, or it can be applied to the declaration or definition of a `class/struct/union` or `enumeration`. It cannot be applied to a function parameter or to the exception parameter of a catch clause.
+
+The object or the type declared by such a declaration will have its alignment requirement equal to the strictest (largest) non-zero expression of all `alignas` specifiers used in the declaration, unless it would weaken the natural alignment of the type.
+
+If the strictest (largest) alignas on a declaration is weaker than the alignment it would have without any alignas specifiers (that is, weaker than its natural alignment or weaker than `alignas` on another declaration of the same object or type), the program is ill-formed:
+
+```cpp
+struct alignas(8) S {};
+struct alignas(1) U { S s; }; // error: alignment of U would have been 8 without alignas(1)
+```
+
+Invalid non-zero alignments, such as `alignas(3)` are ill-formed.
+
+Valid non-zero alignments that are weaker than another `alignas` on the same declaration are ignored.
+
+`alignas(0)` is always ignored.
+
+> #### Notes
+
+As of the ISO C11 standard, the C language has the `_Alignas` keyword and defines `alignas` as a preprocessor macro expanding to the keyword in the header <stdalign.h>, but in C++ this is a keyword, and the headers <stdalign.h> and <cstdalign> do not define such macro. They do, however, define the macro constant `__alignas_is_defined`.
+
+> #### example
+
+```cpp
+// every object of type sse_t will be aligned to 16-byte boundary
+struct alignas(16) sse_t
+{
+    float sse_data[4];
+};
+ 
+// the array "cacheline" will be aligned to 128-byte boundary
+alignas(128) char cacheline[128];
+ 
+ 
+int main()
+{
+}
+```
+
+[Original Address](https://www.apiref.com/cpp/cpp/language/alignas.html)
