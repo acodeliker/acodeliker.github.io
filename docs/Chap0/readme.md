@@ -2585,3 +2585,74 @@ int main()
 ```
 
 [Original Address](https://www.apiref.com/cpp/cpp/language/alignas.html)
+
+
+### 24. constexpr
+
+It proposed at the beginning of `C++11`, and its meaning is somewhat different from that of `C++14`.
+
+The function return value and parameters specified by `constexpr` in C++11 must be guaranteed to be literal, and there must be and only one line of return code, which brings more restrictions to the function designer, such as usually only through **return ternary operator and recursion** to calculate the returned literal value.
+
+In C++14, it is enough to ensure that the return value and parameters are literal, and more statements can be added to the function body to facilitate more flexible calculations.
+
+
+Many people compare constexpr with const.
+
+
+In fact, const does not represent "constant", it is just a modification of the variable, telling the compiler that this variable can only be initialized, and can not be directly modified (in fact, it can be modified through stack overflow etc.). 
+The value of this variable can be specified at runtime or at compile time.
+
+
+constexpr can be used to modify variables, functions, and constructors. 
+Once any of the above elements are modified by constexpr, it is equivalent to telling the compiler "please treat me boldly as an expression that can get a constant value at compile time to optimize me".
+
+Such as:
+
+```cpp
+const int func() {
+    return 10;
+}
+main(){
+  int arr[func()];
+}
+//error :Function calls must have constant values ​​in constant expressions
+
+/*
+For func(), the timid compiler does not have enough courage to optimize at compile time, even if the function body is just a return literal;
+
+While:
+*/
+
+constexpr func() {
+    return 10;
+}
+main(){
+  int arr[func()];
+}
+// compile pass
+```
+
+The func() is boldly optimized during the compile period, and the value 10 calculated by the func is determined during the compile period without waiting for the runtime to calculate.
+
+
+This is the first role of constexpr: to give the compiler enough confidence to optimize expressions modified by constexpr at compile time.
+
+There is another feature of constexpr. Although one of its functions is to hope that the programmer can give the compiler confidence in optimization, it guesses that it may be deceived by the programmer, and the compiler will not be "ashamed of it." 
+Stop compilation, such as:
+
+```cpp
+constexpr int func(const int n){
+  return 10+n;
+}
+main(){
+ const  int i = cin.get();
+ cout<<func(i);
+}
+//ok
+```
+
+
+The programmer told the compiler that although confidently treating func as a program that can calculate the value at compile time, it deceived it. The programmer ultimately did not pass a constant `literal value` to the function. 
+
+The reason for not being aborted by the compiler and reporting an error is that the compiler does not trust the programmer 100%. When it detects that the parameter of func is a constant `literal value`, the compiler will optimize it, otherwise, it will still leave the calculation task to the runtime.
+
