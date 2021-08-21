@@ -2656,3 +2656,216 @@ The programmer told the compiler that although confidently treating func as a pr
 
 The reason for not being aborted by the compiler and reporting an error is that the compiler does not trust the programmer 100%. When it detects that the parameter of func is a constant `literal value`, the compiler will optimize it, otherwise, it will still leave the calculation task to the runtime.
 
+
+### 25 using
+
+#### 1. Syntax:
+
+An alias declaration is a declaration with the following syntax:
+
+```cpp
+using identifier attr(optional) = type identifier; (1)
+
+template <template parameter list> using identifier attr(optional) = type identifier; (2)   
+
+
+attr(C++11)-optional sequence of any number of attributes
+```
+
+
+Identifier-the name introduced by this declaration, which becomes a type name (1) or a template name (2)
+
+Template parameter list-template parameter list, same as template declaration
+
+Type identification-abstract declarator or any other legal type identification (new types can be introduced, as indicated in the type identification). 
+Type identification cannot directly or indirectly refer to identifiers. 
+Note that the declaration point of the identifier is at the semicolon following the type identifier.
+
+
+#### 2. explaination:
+
+Everyone knows that in C++ you can redefine a type through typedef:
+
+```cpp
+typedef unsigned int uint_t;
+```
+
+
+The redefined type is not a new type, just a new name for the original type. 
+Therefore, the following will not be a legal function overload:
+
+```cpp
+void func(unsigned int);
+
+void func(uint_t); // error: redefinition
+```
+
+It is convenient to use typedef to redefine a type, but it also has some limitations, for example, it is not possible to redefine a template.
+Imagine the following scenario:
+
+```cpp
+typedef std::map<std::string, int> map_int_t;
+
+typedef std::map<std::string, std::string> map_str_t;
+```
+
+What we need is actually a fixed map with std::string as the key, which can be mapped to int or another std::string. 
+However, this simple requirement is difficult to achieve with only typedef.
+
+
+Therefore, in C++98/03 often have to write like this:
+ 
+```cpp
+    
+template <typename Val>
+    
+struct str_map
+{
+        
+typedef std::map<std::string, Val> type;
+    
+};
+    
+// ...
+    
+str_map<int>::type map1;
+    
+// ...
+```
+
+
+A simple but slightly cumbersome external application class of str_map is necessary. 
+This obviously makes us very uncomfortable when reusing some generic code.
+
+
+Now, in C++11, there is finally a syntax that can redefine a template. 
+Consider the following example:
+
+```cpp    
+template <typename Val>
+    
+using str_map_t = std::map<std::string, Val>;
+    
+// ...
+    
+str_map_t<int> map1;
+```
+
+Here, the template alias `str_map_t` of `std::map` is defined using the new `using` alias syntax. 
+Compared with the previous str_map constructed using external templates and `typedef`, it is exactly like a new map template, so it is much more concise.
+
+
+In fact, the alias syntax of using covers all the functions of typedef. 
+Let's take a look at an example of redefining common types first, and compare these two syntaxes:
+
+```cpp
+// Redefine unsigned int
+    
+typedef unsigned int uint_t;
+    
+using uint_t = unsigned int;
+    
+// Redefine std::map
+    
+typedef std::map<std::string, int> map_int_t;
+    
+using map_int_t = std::map<std::string, int>;
+ 
+```
+
+As you can see, in redefining common types, the effects of the two methods are equivalent, the only difference is the definition syntax.
+
+The definition method of typedef is similar to the declaration of variables: just like declaring a variable, declare a redefinition type, and then add typedef before the declaration. 
+This way of writing highlights the grammatical consistency in C/C++, but sometimes increases the difficulty of reading the code. 
+For example, when redefining a function pointer:
+
+```cpp
+typedef void (*func_t)(int, int);
+```
+
+In contrast, using is always immediately followed by a new identifier (Identifier), and then uses a syntax similar to assignment to assign an existing type (type-id) to the new type: 
+
+```cpp
+using func_t = void (*)(int, int);
+```
+
+
+From the above comparison, we can find that C++11's using alias syntax is clearer than typedef. 
+Because the alias syntax of typedef is essentially similar to a way of solving equations. 
+The using grammar defines aliases through assignment, which is consistent with our usual way of thinking.
+
+
+Let's take another comparative example to see how the new using syntax defines template aliases.
+
+```cpp    
+/* C++98/03 */
+    
+template <typename T>
+    
+struct func_t
+    
+{
+        
+typedef void (*type)(T, T);
+    
+};
+    
+// Use func_t template
+    
+func_t<int>::type xx_1;
+    
+/* C++11 */
+    
+template <typename T>
+    
+using func_t = void (*)(T, T);
+    
+// Use func_t template
+    
+func_t<int> xx_2;
+ 
+```
+
+As can be seen from the example, the syntax of defining template aliases by using is just to add the parameter list of template on the basis of common type alias syntax. 
+Using using can easily create a new template alias, without the need to use cumbersome external templates like C++98/03.
+
+
+It should be noted that the using syntax is the same as typedef and does not create new types. 
+In other words, the using writing of C++11 in the above example is just the equivalent of typedef. 
+Although func_t redefined by using is a template, xx_2 defined by func_t<int> is not a class instantiated by a class template, but an alias of void(*)(int, int).
+
+
+Therefore, write the following:
+
+```cpp
+void foo(void (*func_call)(int, int));
+
+void foo(func_t<int> func_call); // error: redefinition
+```
+
+
+It is also impossible to implement overloading, func_t<int> is just the equivalent of void(*)(int, int) type.
+
+
+Careful readers can find that the func_t redefined by using is a template, but it is neither a class template nor a function template (after a function template is instantiated, it is a function), but a new form of template: template alias (alias template). 
+).
+
+
+In fact, any type of template expression can be easily defined by using. 
+For example, the following:
+
+```cpp
+template <typename T>
+
+using type_t = T;
+
+// ...
+
+type_t<int> i;
+ 
+```
+
+The instantiated type using `type_t` is equivalent to its template parameter type. 
+Here, `type_t<int>` will be equivalent to `int`.
+
+[Original Address](https://blog.csdn.net/Max_Cong/article/details/109957969)
