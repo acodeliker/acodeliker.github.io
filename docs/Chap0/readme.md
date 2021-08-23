@@ -2659,7 +2659,7 @@ The reason for not being aborted by the compiler and reporting an error is that 
 
 ### 25 using
 
-#### 1. Syntax:
+#### Syntax:
 
 An alias declaration is a declaration with the following syntax:
 
@@ -2682,7 +2682,7 @@ Type identification cannot directly or indirectly refer to identifiers.
 Note that the declaration point of the identifier is at the semicolon following the type identifier.
 
 
-#### 2. explaination:
+#### explaination:
 
 Everyone knows that in C++ you can redefine a type through typedef:
 
@@ -2869,3 +2869,111 @@ The instantiated type using `type_t` is equivalent to its template parameter typ
 Here, `type_t<int>` will be equivalent to `int`.
 
 [Original Address](https://blog.csdn.net/Max_Cong/article/details/109957969)
+
+
+### 26.alignof
+
+#### phenomenon
+
+First look at a piece of code:
+
+```cpp
+struct s1
+{
+    char s;
+    int i;
+};
+ 
+struct s2
+{
+    int i;
+    double d;
+};
+ 
+cout << "-------basic type" << endl;
+cout << "sizeof(char)	" << sizeof(char) << endl;
+cout << "sizeof(int)	" << sizeof(int) << endl;
+cout << "sizeof(double)	" << sizeof(double) << endl;
+ 
+cout << endl;
+cout << "-------struct" << endl;
+cout << "sizeof(s1)	" << sizeof(s1) << endl;
+cout << "sizeof(s2)	" << sizeof(s2) << endl;
+```
+
+Different machine environments may have different results, but it does not affect the explanation of the problem. 
+
+For example, if the structure s1 contains a char and an int, then the size of s1 should be 5, but the result is 8, and the same is true for s2. This involves a concept: memory alignment.
+
+#### explaination
+
+C++11 newly introduced operator `alignof`, **alignment descriptor** `alignas`, basic alignment value `alignof(std::max_align_t)`.
+
+`alignas` can accept constant expressions and types as parameters, can modify variables, data members of classes, etc., and cannot modify bit fields and variables declared with register. Generally aligned to the larger.
+
+Look at a piece of code directly (combined with the previous piece of code):
+
+```cpp
+struct s3
+{
+    char s;
+    double d;
+    int i;
+};
+ 
+ 
+struct s11
+{
+    alignas(16) char s;
+    int i;
+};
+ 
+struct s12
+{
+    alignas(16) char s;
+    int i;
+};
+ 
+ 
+// alignof
+cout << "-------------------alignof---------------------" << endl;
+// 基本对齐值
+cout << "alignof(std::max_align_t)	" << alignof(std::max_align_t) << endl;
+cout << endl;
+cout << "-------basic type" << endl;
+cout << "alignof(char)		" << alignof(char) << endl;
+cout << "alignof(int)		" << alignof(int) << endl;
+cout << "alignof(double)	" << alignof(double) << endl;
+ 
+cout << endl;
+cout << "-------struct" << endl;
+cout << "alignof(s1)		" << alignof(s1) << endl;
+cout << "alignof(s2)		" << alignof(s2) << endl;
+cout << "alignof(s3)		" << alignof(s3) << endl;
+ 
+cout << endl;
+cout << endl;
+ 
+// alignas
+cout << "-------------------alignas---------------------" << endl;
+cout << "alignof(s1)		" << alignof(s1) << endl;
+cout << "alignof(s11)		" << alignof(s11) << endl;
+cout << "alignof(s12)		" << alignof(s12) << endl;
+ 
+cout << "sizeof(s1)    	" << sizeof(s1) << endl;
+cout << "sizeof(s11)	" << sizeof(s11) << endl;
+cout << "sizeof(s12)	" << sizeof(s12) << endl;
+```
+
+C++11 also added several memory-aligned functions, each of which has a specific role and will not be expanded here.
+
+```cpp
+std::alignment_of
+
+std::aligned_storage
+
+std::max_align_t
+
+std::align
+
+```
