@@ -2977,3 +2977,121 @@ std::max_align_t
 std::align
 
 ```
+
+### 27. The post-syntax of the return value type 
+
+To solve the problem that the return value type of a function depends on the parameter and it is difficult to determine the return value type. 
+With this kind of grammar, the derivation of the return value type can be described in a clear way (calculation directly through the parameters), without the need for obscure and difficult writing like C++98/03.
+
+
+In generic programming, we may encounter the return value obtained by parameter operation such as the following example.
+
+Before that, we have understood `auto` and `decltype`,
+
+Example:
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <typename R, typename T, typename U>
+R add(T t, U u)
+{
+	return t + u;
+}
+
+
+int main()
+{
+	char a = 'a';
+	string b = "32";
+
+	auto c = add<decltype(a + b)>(a, b);
+	cout << "auto c: " << c << endl;
+
+	system("pause");
+}
+
+```
+
+It seems that this works, decltype(a+b) directly gets the return value type. 
+But outside the function, you should not know the internal operation of the function.
+
+
+Based on what you have learned before, you may think of using decltype to get the return value type, and write the following paragraph:
+
+```cpp
+#include<iostream>
+
+template <typename T, typename U>
+decltype(t + u) add(T t, U u)  //the first t、u are undefined identifiers .
+{
+	return t + u;
+}
+
+```
+
+But the compiler reported an error and undefined identifiers `t` and `u` appeared. 
+This problem occurs because t and u are in the parameter list, and the return value of C++ is pre-syntax, and the parameter variable does not exist when the return value is defined.
+
+
+In C++98, it can be written like this (feasible method):
+
+```cpp
+template <typename T, typename U>
+decltype((*(T*)0) + (*(U*)0)) add(T t, U u)
+{
+    return t + u;
+}
+
+```
+
+In C++11, it newly added the syntax of return value type post (also known as tracking return type), combining decltype and auto to complete the derivation of return value type.
+
+```cpp
+template <typename T, typename U>
+auto add(T t, U u) -> decltype(t + u) // Increased readability
+{
+    return t + u;
+}
+
+```
+
+Of course, there are some complicated examples that C++1.0 can't do.
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int& foo(int& i)
+{
+	return i;
+}
+float foo(float& f)
+{
+	return f;
+}
+template <typename T>
+auto func(T& val) -> decltype(foo(val))
+{
+	return foo(val);
+}
+
+
+using namespace std;
+int main()
+{
+	float f = 3.14;
+	int i = 3;
+	auto a = func<int>(i);
+	cout << a << endl; //输出3
+
+	auto b = func<float>(f);
+	cout << b << endl;// print 3.14
+	return 0;
+}
+
+```
+
+[Original Address](https://blog.csdn.net/weixin_50188452/article/details/117172917)
