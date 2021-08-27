@@ -3096,7 +3096,7 @@ int main()
 
 [Original Address](https://blog.csdn.net/weixin_50188452/article/details/117172917)
 
-### 28.. random number
+### 28. random number
 
 In C++ programs, before the emergence of the new standard, both C and C++ relied on a simple C library function rand to generate random numbers. However, this function generates pseudo-random numbers with uniform distribution, and the range of each random number is 0. 
 Between the maximum value (at least 32767) associated with a system.
@@ -3342,3 +3342,39 @@ In addition to generating the above uniform distribution, C++11 also stipulates 
 Check the corresponding function (for details, please refer to page 781 of C++ Primer)
 
 [Original Address](https://blog.csdn.net/qq_34784753/article/details/79600809)
+
+
+### 29 char32_t and char16_t
+
+C++11 added types `long long` and `unsigned long long` to support 64-bit (or wider) integer types; and the types `char16_t` and `char32_t` are added to support 16-bit and 32-bit character representation.
+
+
+```cpp
+// char16_t and char32_t C++
+
+char16_t ch1 = u'a';
+
+char32_t ch2 = U'\U0000222B'
+```
+
+the cause of adding them:
+
+As programmers become more familiar with Unicode, the type wchar_t obviously cannot meet the needs. When encoding characters and strings on a computer system, it is obviously not enough to use Unicode code points.
+
+For example, when encoding strings, it will be helpful if there are types with specific length and symbol characteristics, and the length and symbol characteristics of the type `wchar_t` depend on the implementation, so C++11 adds the types `char16_t`, `char32_t`.
+
+`char16_t`: unsigned type, 16 bits long,
+
+`char32_t` unsigned type, 32 bits long
+
+C++11 uses the prefix u to represent `char16_t` character constants and string constants such as: u‘L’; u"lilili";
+
+C++11 uses the prefix U to represent `char32_t` character constants and string constants such as: U’L’;U”lilili”;
+
+The type `char16_t` matches the universal character name of the form /u00F6,
+
+The type `char32_t` matches the universal character name of the form /U0000222B.
+
+The prefixes u and U indicate that the types of character literals are char16_t and char32_t, respectively.
+
+[Original Address](https://zouzhongliang.com/index.php/2019/06/24/c11xinzengleixing/)
